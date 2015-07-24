@@ -9,6 +9,5 @@ from .models import ImagerProfile
 #         ('Date information', {'fields': ['camera'], 'classes': ['collapse']}),
 #     ]
 #     list_display = ('user.username', 'camera', 'website_url')
-#     # list_filter = ['pub_date']
 
 admin.site.register(ImagerProfile)

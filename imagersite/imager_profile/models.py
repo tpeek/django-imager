@@ -19,18 +19,18 @@ class ImagerProfile(models.Model):
     name = models.CharField(max_length=128)
     user = models.OneToOneField(User, related_name="profile", null=False)
     camera = models.CharField(
-        max_length=128, help_text="What is the make and mofel of your camera?")
+        max_length=128, help_text="What is the make and model of your camera?")
     address = models.TextField()
     wesite_url = models.URLField()
     photography_type = models.CharField(
-        max_length=1, help_text="What is your photography type?",
+        max_length=64, help_text="What is your photography type?",
         choices=PHOTOGRAPHY_CHOICES)
     objects = models.Manager()
     active = ActiveProfileManager()
 
     def __str__(self):
-        return self.name
+        return self.user.get_full_name() or self.user.username
 
     @property
     def is_active(self):
-        return self._is_active
+        return self.user.is_active
