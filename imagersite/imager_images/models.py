@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.encoding import python_2_unicode_compatible
+from datetime import datetime
 
 
 PRIVACY = [('PR', 'private'),
@@ -10,14 +11,14 @@ PRIVACY = [('PR', 'private'),
 
 @python_2_unicode_compatible
 class Photo(models.Model):
-    pic = models.ImageField(upload_to='photo_files/%Y-%m-%d')
+    file = models.ImageField(upload_to='photo_files/%Y-%m-%d')
     owner = models.ForeignKey(User, null=False)
     title = models.CharField(max_length=128)
     description = models.TextField()
-    date_uploaded = models.DateTimeField('date uploaded')
-    date_modified = models.DateTimeField('date modified')
-    date_published = models.DateTimeField('date published')
-    privacy = models.ChariField(max_length=64, choices=PRIVACY)
+    date_uploaded = models.DateTimeField(default=datetime.now)
+    date_modified = models.DateTimeField(default=datetime.now)
+    date_published = models.DateTimeField(default=datetime.now)
+    privacy = models.CharField(max_length=64, choices=PRIVACY)
 
     def __str__(self):
         return self.title
@@ -25,15 +26,15 @@ class Photo(models.Model):
 
 @python_2_unicode_compatible
 class Album(models.Model):
-    photos = models.ManyToManyField(Photo)
-    cover = models.ForeignKey(Photo)
+    photos = models.ManyToManyField(Photo, related_name='photos')
+    cover = models.ForeignKey(Photo, related_name='cover')
     owner = models.ForeignKey(User, null=False)
     title = models.CharField(max_length=128)
     description = models.TextField()
-    date_uploaded = models.DateTimeField('date uploaded')
-    date_modified = models.DateTimeField('date modified')
-    date_published = models.DateTimeField('date published')
-    privacy = models.ChariField(max_length=64, choices=PRIVACY)
+    date_uploaded = models.DateTimeField(default=datetime.now)
+    date_modified = models.DateTimeField(default=datetime.now)
+    date_published = models.DateTimeField(default=datetime.now)
+    privacy = models.CharField(max_length=64, choices=PRIVACY)
 
     def __str__(self):
         return self.title
