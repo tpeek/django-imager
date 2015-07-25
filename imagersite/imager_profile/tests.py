@@ -8,33 +8,25 @@ import factory
 class UserFactory(factory.Factory):
     class Meta:
         model = User
-    email = factory.LazyAttribute(lambda x: '{}.example.com'.format(x.username))
+    email = factory.LazyAttribute(
+        lambda x: '{}@{}.com'.format(x.username, x.username[::-1]).lower())
     username = factory.Sequence(lambda n: 'user{}'.format(n))
 
 
 class ProfileTestCase1(TestCase):
     def setUp(self):
-        self.user = UserFactory.create(username='bob', email='b@b.com')
+        self.user = UserFactory.create(username='Penelope')
         self.user.set_password('secret')
 
-    def test_profile_made_with_user(self):
+    def test_profile_made_and_destroyed_with_user(self):
         self.assertTrue(ImagerProfile.objects.count() == 0)
         self.user.save()
         self.assertTrue(ImagerProfile.objects.count() == 1)
+        self.user.delete()
+        self.assertTrue(ImagerProfile.objects.count() == 0)
 
-    def test_is_active(self):
-        self.assertTrue(self.user.is_active)
-    # def test_profile_is_username(self):
-    #     profile = ImagerProfile.objects.get(user=self.user)
-    #     #self.assertEqual(str(profile), "bob")
-
-
-# class ProfileTestCase2(TestCase):
-#     def setUp(self):
-#     self.user = UserFactory.build()
-
-
-class ProfileTestCase3(TestCase):
-    def setUp2(self):
-        self.users = []
-        user = UserFactory()
+    def test_profile_is_username(self):
+        self.user.save()
+        profile = ImagerProfile.objects.get(user=self.user)
+        self.assertEqual(str(profile), 'Penelope')
+        print profile.user.email

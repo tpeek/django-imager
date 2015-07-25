@@ -17,7 +17,7 @@ class ImagerProfile(models.Model):
                            ('P', 'Panorama'),
                            ('J', 'Journalism'), ]
     name = models.CharField(max_length=128)
-    user = models.OneToOneField(User, related_name="profile", null=False)
+    user = models.OneToOneField(User, related_name="profile")
     camera = models.CharField(
         max_length=128, help_text="What is the make and model of your camera?")
     address = models.TextField()
