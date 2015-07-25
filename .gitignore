@@ -1,3 +1,7 @@
+# derp
+media
+migrations/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -22,7 +26,7 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
-media
+
 
 # PyInstaller
 #  Usually these files are written by a python script from a template

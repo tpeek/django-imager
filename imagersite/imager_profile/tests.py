@@ -29,4 +29,3 @@ class ProfileTestCase1(TestCase):
         self.user.save()
         profile = ImagerProfile.objects.get(user=self.user)
         self.assertEqual(str(profile), 'Penelope')
-        print profile.user.email
