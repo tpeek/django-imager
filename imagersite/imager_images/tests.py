@@ -50,7 +50,7 @@ class PhotoTestCase(TestCase):
         self.assertFalse(self.photo1.owner is UserFactory.create())
 
 
-class AlbumTestCase(TestCase):
+class AlbumTestCase1(TestCase):
     def setUp(self):
         owner = UserFactory.create()
         owner.save()
@@ -81,3 +81,32 @@ class AlbumTestCase(TestCase):
             photo.save()
         self.album1.photos.add(*photos)
         self.assertTrue(self.album1.photos.count() == 10)
+
+
+class AlbumTestCase2(TestCase):
+    def setUp(self):
+        owner1, owner2 = UserFactory.create(), UserFactory.create(username='bob')
+        owner1.save()
+        owner2.save()
+        cover1 = PhotoFactory.create(owner=owner1)
+        cover2 = PhotoFactory.create(owner=owner2)
+        cover1.save()
+        cover2.save()
+        self.album1 = AlbumFactory.create(owner=owner1, cover=cover1)
+        self.album2 = AlbumFactory.create(owner=owner2, cover=cover2)
+        self.album1.save()
+        self.album2.save()
+        self.photos = [PhotoFactory.create(owner=self.album1.owner) for x in range(10)]
+        for photo in self.photos:
+            photo.save()
+
+    def tearDown(self):
+        Album.objects.all().delete()
+        Photo.objects.all().delete()
+        User.objects.all().delete()
+
+    def test_many_to_many(self):
+        self.album1.photos.add(*self.photos)
+        self.album2.photos.add(*self.photos)
+        for p1, p2 in zip(self.album1.photos.all(), self.album2.photos.all()):
+            self.assertEqual(p1, p2)
