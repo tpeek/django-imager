@@ -19,4 +19,6 @@ from django.contrib import admin
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     #url(r'^profile/', include('imager_profiles.urls'))
+    url(r'^$', 'imagersite.views.home_view', name='homepage'),
+    url(r'^(?P<foo>\d+)/$', 'imagersite.views.test_view', name='testme')
 ]
