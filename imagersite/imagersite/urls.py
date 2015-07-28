@@ -28,6 +28,4 @@ urlpatterns = [
           {'template_name': 'registration/login.html'}, name='auth_login'),
     url(r'^accounts/logout/$', 'imagersite.views.auth_view',
           {'template_name': 'registration/logout.html'}, name='auth_logout'),
-    url(r'^accounts/register/$', 'imagersite.views.auth_view',
-          {'template_name': 'registration/registration_form.html'}, name='auth_register'),
 ]

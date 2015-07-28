@@ -183,6 +183,7 @@ EMAIL_PORT = 587
 # For django-registration-redux
 ACCOUNT_ACTIVATION_DAYS = 3
 LOGIN_REDIRECT_URL = '/'
+LOGIN_URL = '/accounts/login/'
 
 # Added per
 # http://stackoverflow.com/questions/11814059/site-matching-query-does-not-exist
