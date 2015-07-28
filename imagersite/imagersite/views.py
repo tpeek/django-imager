@@ -16,5 +16,5 @@ def test_view(request, foo=0):
     return render(request, 'base.html')
 
 
-def auth_view(request):
+def auth_view(request, foo=0):
     return
