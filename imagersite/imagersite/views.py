@@ -9,10 +9,12 @@ from django.conf import settings
 
 
 def home_view(request):
-    context = {
-        'pic_url': Photo.objects.filter(privacy='PU').order_by('?').first().file.url
-    }
-    return render(request, 'home.html', context)
+    try:
+        pic_url = Photo.objects.filter(
+                  privacy='PU').order_by('?').first().file
+    except AttributeError:
+        pic_url = 'demo.jpg'
+    return render(request, 'home.html', {'pic_url': pic_url})
 
 
 def auth_view(request, foo=0):
