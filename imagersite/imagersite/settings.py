@@ -27,8 +27,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-ACCOUNT_ACTIVATION_DAYS = 7
-
 # Application definition
 
 INSTALLED_APPS = (
@@ -42,6 +40,7 @@ INSTALLED_APPS = (
     'imager_images',
     'bootstrap3',
     'registration',
+    'django.contrib.sites'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -168,11 +167,11 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
-# MEdia file handling
+# Media file handling
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
-
+# Email
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'pythonpics@gmail.com'
@@ -180,3 +179,10 @@ EMAIL_HOST_PASSWORD = 'pythonpicspass'
 EMAIL_PORT = 587
 # EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 # EMAIL_FILE_PATH = '/'
+
+# For django-registration-redux
+ACCOUNT_ACTIVATION_DAYS = 3
+
+# Added per
+# http://stackoverflow.com/questions/11814059/site-matching-query-does-not-exist
+SITE_ID = 2
