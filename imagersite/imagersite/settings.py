@@ -40,6 +40,8 @@ INSTALLED_APPS = (
     'imager_profile',
     'imager_images',
     'bootstrap3',
+    'registration',
+    'django.contrib.sites'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -169,3 +171,10 @@ STATIC_URL = '/static/'
 # MEdia file handling
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
+
+# For django-registration-redux
+ACCOUNT_ACTIVATION_DAYS = 3
+
+# Added per 
+# http://stackoverflow.com/questions/11814059/site-matching-query-does-not-exist
+SITE_ID = 2
