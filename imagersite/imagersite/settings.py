@@ -27,6 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+ACCOUNT_ACTIVATION_DAYS = 7
 
 # Application definition
 
@@ -40,6 +41,7 @@ INSTALLED_APPS = (
     'imager_profile',
     'imager_images',
     'bootstrap3',
+    'registration',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -164,8 +166,17 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 STATIC_URL = '/static/'
-#STATIC_ROOT = os.pat.jin(BASE_DIR, )
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # MEdia file handling
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
+
+
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'pythonpics@gmail.com'
+EMAIL_HOST_PASSWORD = 'pythonpicspass'
+EMAIL_PORT = 587
+# EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+# EMAIL_FILE_PATH = '/'
