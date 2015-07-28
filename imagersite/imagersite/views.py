@@ -10,7 +10,11 @@ def home_view(request):
     # template = loader.get_template('templates/home.jinja2')
     # response_body = template.render(request, 'templates/home.jinja2')
     # return HttpResponse(response_body)
-    return render(request, 'base.html')
+    return render(request, 'home.html')
 
 def test_view(request, foo=0):
     return render(request, 'base.html')
+
+
+def auth_view(request):
+    return

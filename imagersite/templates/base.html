@@ -1,20 +1,21 @@
 <!DOCTYPE html>
-{% load bootstrap3 %}
-
-{% bootstrap_css %}
-{% bootstrap_javascript %}
-
-{% bootstrap_messages %}
-
-{% block content %}
-{% endblock %}
 <html>
 <head>
-    <title>This is in the title!</title>
+    {% load bootstrap3 %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+    {% bootstrap_messages %}
+    <title>Imager</title>
 </head>
-<body>
-    <h1>This is an h1!</h1>
-    <p>This is in ffthe body!</p>
-</body>
-<footer>This is in the footer!</footer>
+<h1><strong>Imager </strong><small>Share Moments, Share Life</small></h1>
+<nav class='container'>
+    <a href="{% url 'homepage' %}">home</a>
+    <a href="{% url 'auth_login' %}">login</a>
+    <a href="{% url 'auth_register' %}">register</a>
+    <a href="{% url 'homepage' %}">home</a>
+    <a href="{% url 'homepage' %}">home</a>
+</nav><br><br>
+{% block content %}
+{% endblock %}
+<footer class="col-md-2 col-md-offset-5">&copy; 2015 JTNTJ, inc.</footer>
 </html>
