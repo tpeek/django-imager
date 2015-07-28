@@ -16,18 +16,13 @@ Including another URLconf
 from django.conf.urls import include, url
 from django.contrib import admin
 import django
+from django.conf.urls.static import static
+from django.conf import settings
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     #url(r'^accounts/profile/', include('imager_profiles.urls')),
     url(r'^$', 'imagersite.views.home_view', name='homepage'),
-    url(r'^(?P<foo>\d+)/$', 'imagersite.views.test_view', name='testme'),
     url(r'^accounts/', include('registration.backends.default.urls')),
     url(r'^accounts/login', include('registration.backends.default.urls')),
-    url(r'^accounts/login/$', 'imagersite.views.auth_view',
-          {'template_name': 'registration/login.html'}, name='auth_login'),
-    url(r'^accounts/logout/$', 'imagersite.views.auth_view',
-          {'template_name': 'registration/logout.html'}, name='auth_logout'),
-    url(r'^accounts/register/$', 'imagersite.views.auth_view',
-          {'template_name': 'registration/registration_form.html'}, name='auth_register'),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

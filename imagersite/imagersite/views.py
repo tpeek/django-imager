@@ -4,16 +4,15 @@ from django.http import HttpResponse
 from django.template import Template
 from django.template import loader
 from django.views.generic import TemplateView
+from imager_images.models import Photo
+from django.conf import settings
 
-# Create your views here.
+
 def home_view(request):
-    # template = loader.get_template('templates/home.jinja2')
-    # response_body = template.render(request, 'templates/home.jinja2')
-    # return HttpResponse(response_body)
-    return render(request, 'home.html')
-
-def test_view(request, foo=0):
-    return render(request, 'base.html')
+    context = {
+        'pic_url': Photo.objects.filter(privacy='PU').order_by('?').first().file.url
+    }
+    return render(request, 'home.html', context)
 
 
 def auth_view(request, foo=0):
