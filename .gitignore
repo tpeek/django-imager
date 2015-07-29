@@ -1,6 +1,6 @@
 # Project specific
 media
-!media/test
+!media/test/*
 *.sqlite3
 
 # Byte-compiled / optimized / DLL files
