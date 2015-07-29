@@ -4,6 +4,7 @@ from imager_images.models import Photo
 from imager_profile.models import User
 import factory
 from faker import Factory as FakeFaker
+from django.conf import settings
 
 fake = FakeFaker.create()
 
@@ -11,9 +12,8 @@ fake = FakeFaker.create()
 class PhotoFactory(factory.Factory):
     class Meta:
         model = Photo
-    print dir(fake)
     title = fake.sentence()
-    description = fake.lorem()
+    description = fake.paragraph()
 
 
 class UserFactory(factory.Factory):
@@ -42,9 +42,9 @@ class RandomPhotos(unittest.TestCase):
         self.client = Client()
         owner = UserFactory.create()
         owner.save()
-        self.photo1 = PhotoFactory.create(owner=owner, privacy='PU')
+        self.photo1 = PhotoFactory.create(owner=owner, privacy='PU',
+            file=settings.MEDIA_ROOT + 'amoosing.jpg')
 
     def test_random_photo_in_site(self):
-
         response = self.client.get('/')
         print response
