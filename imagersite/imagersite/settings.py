@@ -178,8 +178,9 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'pythonpics@gmail.com'
 EMAIL_HOST_PASSWORD = 'pythonpicspass'
 EMAIL_PORT = 587
-# EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
-# EMAIL_FILE_PATH = '/'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_FILE_PATH = 'emails'
+
 
 # For django-registration-redux
 ACCOUNT_ACTIVATION_DAYS = 3

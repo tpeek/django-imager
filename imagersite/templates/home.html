@@ -2,9 +2,15 @@
 {% block content %}
 
 <body>
-    <h3>Sign up now and change the world.</h3>
-    <div class="img-responsive center-block" >
-        <img class="img-responsive center-block" src="{{ MEDIA_ROOT }}{{ pic_url }}">
+<h3>
+    {% if user.is_authenticated %}
+        You have changed the world.
+    {% else %}
+        Sign up now and change the world.
+    {% endif %}
+</h3>
+    <div class="img-responsive center-block">
+        <img class="img-responsive center-block" src="{{ MEDIA_URL }}{{ pic_url }}">
     </div>
 </body>
 
