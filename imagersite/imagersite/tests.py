@@ -3,18 +3,17 @@ from django.test import Client
 from imager_images.models import Photo
 from imager_profile.models import User
 import factory
-from faker import Faker
+from faker import Factory as FakeFaker
 
-
-fake = Faker()
+fake = FakeFaker.create()
 
 
 class PhotoFactory(factory.Factory):
     class Meta:
         model = Photo
-    file = fake.file()
-    title = fake.title()
-    description = fake.description()
+    print dir(fake)
+    title = fake.sentence()
+    description = fake.lorem()
 
 
 class UserFactory(factory.Factory):
@@ -40,9 +39,10 @@ class HomeExists(unittest.TestCase):
 
 class RandomPhotos(unittest.TestCase):
     def setUp(self):
+        self.client = Client()
         owner = UserFactory.create()
         owner.save()
-        self.photo1 = PhotoFactory.create(owner=owner, privacy='PU') 
+        self.photo1 = PhotoFactory.create(owner=owner, privacy='PU')
 
     def test_random_photo_in_site(self):
 
