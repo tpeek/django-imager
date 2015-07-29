@@ -5,6 +5,7 @@ from imager_profile.models import User
 import factory
 from faker import Factory as FakeFaker
 from django.conf import settings
+import os
 
 fake = FakeFaker.create()
 
@@ -29,6 +30,7 @@ class UserFactory(factory.Factory):
 
 
 class HomeExists(unittest.TestCase):
+    """Test for 200 OK at '/'"""
     def setUp(self):
         self.client = Client()
 
@@ -38,13 +40,40 @@ class HomeExists(unittest.TestCase):
 
 
 class RandomPhotos(unittest.TestCase):
+    """Test for random photo selection on website"""
     def setUp(self):
         self.client = Client()
         owner = UserFactory.create()
         owner.save()
         self.photo1 = PhotoFactory.create(owner=owner, privacy='PU',
-            file=settings.MEDIA_ROOT + 'amoosing.jpg')
+            file=os.path.join(settings.MEDIA_ROOT, 'amoosing.jpg'))
+        self.photo2 = PhotoFactory.create(owner=owner, privacy='PU',
+            file=os.path.join(settings.MEDIA_ROOT, 'googlephoto.jpg'))
+        self.photo1.save()
+        self.photo2.save()
+
+    def tearDown(self):
+        self.photo1.delete()
+        self.photo2.delete()
 
     def test_random_photo_in_site(self):
-        response = self.client.get('/')
-        print response
+        pics = set()
+        for i in range(100):
+            response = self.client.get('/')
+            pics.add(response.context['pic_url'])
+        self.assertEqual(len(pics), 2)
+
+
+class StaticPhoto(unittest.TestCase):
+    """Test for static photo on website"""
+    def setUp(self):
+        self.client = Client()
+
+    def test_random_photo_in_site(self):
+        pics = set()
+        for i in range(100):
+            response = self.client.get('/')
+            pics.add(response.context['pic_url'])
+        print pics
+        self.assertEqual(len(pics), 1)
+        self.assertIn('demo.jpg', pics)
