@@ -38,8 +38,13 @@ class HomeExists(unittest.TestCase):
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
 
+    def test_links_for_home(self):
+        response = self.client.get('/')
+        self.assertIn('<a href="/login/">login</a>', response.content)
+        self.assertIn('<a href="/register/">register</a>', response.content)
 
-class RandomPhotos(unittest.TestCase):
+
+class HomeRandomPhotos(unittest.TestCase):
     """Test for random photo selection on website"""
     def setUp(self):
         self.client = Client()
@@ -64,7 +69,7 @@ class RandomPhotos(unittest.TestCase):
         self.assertEqual(len(pics), 2)
 
 
-class StaticPhoto(unittest.TestCase):
+class HomeStaticPhoto(unittest.TestCase):
     """Test for static photo on website"""
     def setUp(self):
         self.client = Client()
