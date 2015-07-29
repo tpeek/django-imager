@@ -26,5 +26,12 @@ def profile_view(request, username):
                  {'album_count': album_count, 'photo_count': photo_count})
 
 
+def photos_view(request, username):
+    user = User.objects.filter(username=username).first()
+    photos = Photo.objects.filter(owner=user).order_by('date_uploaded')
+    return render(request, 'photos.html',
+                 {'photos': photos, 'username': username.title()})
+
+
 def auth_view(request, foo=0):
     return
