@@ -6,6 +6,8 @@ import factory
 from faker import Factory as FakeFaker
 from django.conf import settings
 import os
+from django.core.mail import outbox
+import re
 
 fake = FakeFaker.create()
 
@@ -79,7 +81,6 @@ class HomeStaticPhoto(unittest.TestCase):
         for i in range(100):
             response = self.client.get('/')
             pics.add(response.context['pic_url'])
-        print pics
         self.assertEqual(len(pics), 1)
         self.assertIn('demo.jpg', pics)
 
@@ -123,7 +124,25 @@ class RegisterUser(unittest.TestCase):
         self.email = fake.email()
 
     def test_register_user(self):
-        submitdis = self.client.post('/register/', {'username': self.username, 
+        response = self.client.post('/register/', {'username': self.username, 
             'password1': self.password, 'password2': self.password,
             'email': self.email}, follow=True)
-        print submitdis.content, submitdis.status_code
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('activate', response.content)
+
+    def test_activate(self):
+        register = self.client.post('/register/', {'username': self.username, 
+            'password1': self.password, 'password2': self.password,
+            'email': self.email}, follow=True)
+        # Regex lifted from:
+        # http://stackoverflow.com/questions/9760588/how-do-you-extract-a-url-from-a-string-using-python
+        link = re.search("(?P<url>https?://[^\s]+)",
+            outbox[0].body).group("url")
+        link_bits = link.split('/')
+        rel_uri = "/" + "/".join(link_bits[3:])
+        activate = self.client.get(rel_uri, follow=True)
+        self.assertIn('activate/complete', activate.wsgi_request.path)
+        # Newly registered user now attempts to login
+        logginin = self.client.post('/login/', {'username': self.username,
+            'password': self.password}, follow=True)
+        self.assertIn(self.username, logginin.content)
