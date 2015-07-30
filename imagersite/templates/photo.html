@@ -4,8 +4,9 @@
 <body>
 <h1>{{ photo.title }}</h1>
     <div class="img-responsive">
-    <h6 class='text-center'>Uploaded on {{ photo.date_uploaded }} -- {{photo.privacy }}</h4>
-    <p class='text-center'>{{ photo.description }}</p>
+    <h6 class='text-center'>Uploaded on {{ photo.date_uploaded }} -- {{photo.privacy }}</h6>
+    <pre class='text-center'>{{ photo.description }}</pre>
+    </div>
         <img class="img-responsive" src="{{ MEDIA_URL }}{{ photo.file }}">
     </div>
 </body>

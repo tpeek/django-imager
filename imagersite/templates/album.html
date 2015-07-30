@@ -9,9 +9,9 @@
     </div>
 
     {% for photo in album.photos.all %}
-    <div class="img-responsive col-md-6"><br><br>
+    <div class="col-lg-3 col-md-4 col-sm-5 col-xs-6"><br><br>
         <h4 class='text-center'>{{ photo.title }}</h4>
-        <a href='/images/photos/{{ photo.id }}'><img style='box-shadow: 10px 15px 15px;' class="img-responsive" src="{{ MEDIA_URL }}{{ photo.file }}"></a>
+        <a href='/images/photos/{{ photo.id }}'><img style='box-shadow: 10px 15px 15px; width: auto; height: 160px;' class="thumbnail" src="{{ MEDIA_URL }}{{ photo.file }}"></a>
     </div>
     {% endfor %}
 </body>
