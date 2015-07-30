@@ -50,9 +50,9 @@ class HomeRandomPhotos(unittest.TestCase):
         self.client = Client()
         owner = UserFactory.create()
         owner.save()
-        self.photo1 = PhotoFactory.create(owner=owner, privacy='PU',
+        self.photo1 = PhotoFactory.create(owner=owner, privacy='Public',
             file=os.path.join(settings.MEDIA_ROOT, 'amoosing.jpg'))
-        self.photo2 = PhotoFactory.create(owner=owner, privacy='PU',
+        self.photo2 = PhotoFactory.create(owner=owner, privacy='Public',
             file=os.path.join(settings.MEDIA_ROOT, 'googlephoto.jpg'))
         self.photo1.save()
         self.photo2.save()
@@ -66,6 +66,7 @@ class HomeRandomPhotos(unittest.TestCase):
         for i in range(100):
             response = self.client.get('/')
             pics.add(response.context['pic_url'])
+        print pics
         self.assertEqual(len(pics), 2)
 
 
@@ -82,16 +83,6 @@ class HomeStaticPhoto(unittest.TestCase):
         print pics
         self.assertEqual(len(pics), 1)
         self.assertIn('demo.jpg', pics)
-
-
-class LoginExists(unittest.TestCase):
-    """Test for 200 OK at '/'"""
-    def setUp(self):
-        self.client = Client()
-
-    def test_self_exists(self):
-        response = self.client.get('/login')
-        self.assertEqual(response.status_code, 200)
 
 
 class LoginExists(unittest.TestCase):
@@ -126,4 +117,4 @@ class RegisterUser(unittest.TestCase):
         submitdis = self.client.post('/register/', {'username': self.username, 
             'password1': self.password, 'password2': self.password,
             'email': self.email}, follow=True)
-        print submitdis.content, submitdis.status_code
+        #print submitdis.content, submitdis.status_code

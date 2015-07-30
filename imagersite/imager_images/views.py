@@ -1,11 +1,16 @@
 from django.shortcuts import render
-from django.http import HttpResponse
-from django.template import Template
-from django.template import loader
-from django.views.generic import TemplateView
+from imager_images.models import Photo, Album
 
-# Create your views here.
-def home_view(request):
-    template = loader.get_template('home.html')
-    response_body = template.render()
-    return HttpResponse(response_body)
+
+def photo_view(request, photo_id):
+    photo = Photo.objects.filter(id=photo_id).first()
+    return render(request, 'photo.html', {'photo': photo})
+
+
+def album_view(request, album_id):
+    album = Album.objects.filter(id=album_id).first()
+    return render(request, 'album.html', {'album': album})
+
+
+def library_view(request):
+    return render(request, 'library.html')
