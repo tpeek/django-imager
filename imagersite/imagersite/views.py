@@ -22,11 +22,17 @@ def profile_view(request):
     return render(request, 'profile.html')
 
 
-def photos_view(request, username):
-    user = User.objects.filter(username=username).first()
-    photos = Photo.objects.filter(owner=user).order_by('date_uploaded')
-    return render(request, 'photos.html',
-                 {'photos': photos, 'username': username.title()})
+def photo_view(request, photo_id):
+    photo = Photo.objects.filter(id=photo_id).first()
+    return render(request, 'photo.html', {'photo': photo})
+
+def album_view(request, album_id):
+    album = Album.objects.filter(id=album_id).first()
+    return render(request, 'album.html', {'album': album})
+
+
+def library_view(request):
+    return render(request, 'library.html')
 
 
 def auth_view(request, foo=0):

@@ -24,6 +24,8 @@ urlpatterns = [
     #url(r'^accounts/profile/', include('imager_profiles.urls')),
     url(r'^$', 'imagersite.views.home_view', name='homepage'),
     url(r'^profile/$', 'imagersite.views.profile_view', name='profile'),
-    url(r'^photos/(?P<username>\w+)/$', 'imagersite.views.photos_view', name='photo'),
+    url(r'^images/library/$', 'imagersite.views.library_view', name='library'),
+    url(r'^images/photos/(?P<photo_id>\w+)/$', 'imagersite.views.photo_view', name='photo'),
+    url(r'^images/albums/(?P<album_id>\w+)/$', 'imagersite.views.album_view', name='album'),
     url(r'^', include('registration.backends.default.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
