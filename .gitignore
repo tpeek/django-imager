@@ -1,5 +1,6 @@
-# derp
+# Project specific
 media
+!media/test/*
 *.sqlite3
 
 # Byte-compiled / optimized / DLL files
