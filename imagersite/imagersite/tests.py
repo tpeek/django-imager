@@ -82,3 +82,48 @@ class HomeStaticPhoto(unittest.TestCase):
         print pics
         self.assertEqual(len(pics), 1)
         self.assertIn('demo.jpg', pics)
+
+
+class LoginExists(unittest.TestCase):
+    """Test for 200 OK at '/'"""
+    def setUp(self):
+        self.client = Client()
+
+    def test_self_exists(self):
+        response = self.client.get('/login')
+        self.assertEqual(response.status_code, 200)
+
+
+class LoginExists(unittest.TestCase):
+    """Test for 200 OK at '/'"""
+    def setUp(self):
+        self.client = Client()
+
+    def test_self_exists(self):
+        response = self.client.get('/login', follow=True)
+        self.assertEqual(response.status_code, 200)
+
+
+class LogoutExists(unittest.TestCase):
+    """Test for 200 OK at '/'"""
+    def setUp(self):
+        self.client = Client()
+
+    def test_self_exists(self):
+        response = self.client.get('/logout', follow=True)
+        self.assertEqual(response.status_code, 200)
+
+
+class RegisterUser(unittest.TestCase):
+    """Test for 200 OK at '/'"""
+    def setUp(self):
+        self.client = Client()
+        self.username = fake.user_name()
+        self.password = fake.password()
+        self.email = fake.email()
+
+    def test_register_user(self):
+        submitdis = self.client.post('/register/', {'username': self.username, 
+            'password1': self.password, 'password2': self.password,
+            'email': self.email}, follow=True)
+        print submitdis.content, submitdis.status_code
