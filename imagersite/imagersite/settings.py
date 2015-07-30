@@ -41,6 +41,7 @@ INSTALLED_APPS = (
     'bootstrap3',
     'registration',
     'django.contrib.sites'
+    # 'sorl.thumbnail',
 )
 
 MIDDLEWARE_CLASSES = (
