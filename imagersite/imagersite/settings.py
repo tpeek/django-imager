@@ -40,8 +40,8 @@ INSTALLED_APPS = (
     'imager_images',
     'bootstrap3',
     'registration',
-    'django.contrib.sites'
-    # 'sorl.thumbnail',
+    'django.contrib.sites',
+    'sorl.thumbnail',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -145,6 +145,13 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
+}
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': '127.0.0.1:11211',
     }
 }
 

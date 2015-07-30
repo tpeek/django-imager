@@ -18,12 +18,8 @@ def home_view(request):
     return render(request, 'home.html', {'pic_url': pic_url})
 
 
-def profile_view(request, username):
-    user = User.objects.filter(username=username).first()
-    album_count = Album.objects.filter(owner=user).count()
-    photo_count = Photo.objects.filter(owner=user).count()
-    return render(request, 'profile.html',
-                 {'album_count': album_count, 'photo_count': photo_count})
+def profile_view(request):
+    return render(request, 'profile.html')
 
 
 def photos_view(request, username):

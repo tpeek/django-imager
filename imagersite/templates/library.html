@@ -3,14 +3,14 @@
 {% load thumbnail %}
 
 <body>
-<h1>{{ user.username }}'s Photos</h1>
-    {% for photo in user.photos.all %}
+<h1>{{ username }}'s Photos</h1>
+    {% for photo in user.photos %}
     <div class="img-responsive col-md-6">
     <h4 class='text-center'>{{ photo.title }}</h2>
     <h6 class='text-center'>Uploaded on {{ photo.date_uploaded }} -- {{photo.privacy }}</h4>
-    {% thumbnail photo "100x100" crop="center" as im %}
-    {{ im.url }}
-    <img src="{{ im }}" width="{{ im.width }}" height="{{ im.height }}">
+    {% thumbnail {{ photo }} "100x100" crop="center" as im %}
+    <p>afdassaadddddddddddddddddddddddddddddddddddddddddddddfasd</p>
+    <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
     {% endthumbnail %}
     <p class='text-center'>{{ photo.description }}</p>
         <img class="img-responsive" src="{{ MEDIA_URL }}{{ photo.file }}">

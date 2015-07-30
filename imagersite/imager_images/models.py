@@ -12,7 +12,7 @@ PRIVACY = [('Private', 'Private'),
 @python_2_unicode_compatible
 class Photo(models.Model):
     file = models.ImageField(upload_to='photo_files/%Y-%m-%d')
-    owner = models.ForeignKey(User, null=False)
+    owner = models.ForeignKey(User, null=False, related_name='photos')
     title = models.CharField(max_length=128)
     description = models.TextField()
     date_uploaded = models.DateTimeField(default=timezone.now)
@@ -28,7 +28,7 @@ class Photo(models.Model):
 class Album(models.Model):
     photos = models.ManyToManyField(Photo, related_name='photos')
     cover = models.ForeignKey(Photo, related_name='cover')
-    owner = models.ForeignKey(User, null=False)
+    owner = models.ForeignKey(User, null=False, related_name='albums')
     title = models.CharField(max_length=128)
     description = models.TextField()
     date_uploaded = models.DateTimeField(default=timezone.now)
