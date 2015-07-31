@@ -137,3 +137,4 @@ class RegisterUser(unittest.TestCase):
         logginin = self.client.post('/login/', {'username': self.username,
             'password': self.password}, follow=True)
         self.assertIn(self.username, logginin.content)
+
