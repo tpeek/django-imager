@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+
+<body>
+<h1>{{ album.title }}</h1>
+    <div class="img-responsive"><br><br>
+    <h6 class='text-center'>Uploaded on {{ album.date_uploaded }} -- {{album.privacy }}</h6>
+    <pre class='text-center'>{{ album.description }}</pre>
+    </div>
+
+    {% for photo in album.photos.all %}
+    <div class="col-lg-3 col-md-4 col-sm-5 col-xs-6"><br><br>
+        <h4 class='text-center'>{{ photo.title }}</h4>
+        <a href='/images/photos/{{ photo.id }}'><img style='box-shadow: 10px 15px 15px; width: auto; height: 160px;' class="thumbnail" src="{{ MEDIA_URL }}{{ photo.file }}"></a>
+    </div>
+    {% endfor %}
+</body>
+
+{% endblock %}

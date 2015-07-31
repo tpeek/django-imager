@@ -40,8 +40,8 @@ INSTALLED_APPS = (
     'imager_images',
     'bootstrap3',
     'registration',
-    'django.contrib.sites'
-    # 'sorl.thumbnail',
+    'django.contrib.sites',
+    'sorl.thumbnail',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -148,6 +148,13 @@ DATABASES = {
     }
 }
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': '127.0.0.1:11211',
+    }
+}
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
@@ -185,7 +192,7 @@ EMAIL_FILE_PATH = 'emails'
 
 # For django-registration-redux
 ACCOUNT_ACTIVATION_DAYS = 3
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/images/library/'
 LOGIN_URL = '/accounts/login/'
 
 # Added per
