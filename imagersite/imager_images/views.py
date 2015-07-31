@@ -18,3 +18,13 @@ def album_view(request, album_id):
 @login_required
 def library_view(request):
     return render(request, 'library.html')
+
+
+@login_required
+def add_album_view(request):
+    return render(request, 'add_album.html')
+
+
+@login_required
+def add_photo_view(request):
+    return render(request, 'add_photo.html')
