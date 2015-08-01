@@ -2,17 +2,22 @@ from django.shortcuts import render
 from imager_images.models import Photo, Album
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
+from django.core.exceptions import PermissionDenied
 from .forms import *
 
 
 @login_required
 def photo_view(request, photo_id):
+    if request.user != Photo.objects.filter(pk=photo_id).first().owner:
+        raise PermissionDenied
     photo = Photo.objects.filter(id=photo_id).first()
     return render(request, 'photo.html', {'photo': photo})
 
 
 @login_required
 def album_view(request, album_id):
+    if request.user != Album.objects.filter(pk=album_id).first().owner:
+        raise PermissionDenied
     album = Album.objects.filter(id=album_id).first()
     return render(request, 'album.html', {'album': album})
 
@@ -61,6 +66,8 @@ def add_photo_view(request):
 
 @login_required
 def edit_album_view(request, album_id):
+    if request.user != Album.objects.filter(pk=album_id).first().owner:
+        raise PermissionDenied
     album = Album.objects.filter(id=album_id).first()
     if request.method == 'POST':
         form = AlbumForm(request.POST, instance=album)
@@ -83,9 +90,10 @@ def edit_album_view(request, album_id):
                      {'form': form.as_p, 'album_id': album_id})
 
 
-
 @login_required
 def edit_photo_view(request, photo_id):
+    if request.user != Photo.objects.filter(pk=photo_id).first().owner:
+        raise PermissionDenied
     photo = Photo.objects.filter(id=photo_id).first()
     if request.method == 'POST':
         form = PhotoForm(request.POST, request.FILES, instance=photo)
