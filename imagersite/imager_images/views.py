@@ -13,6 +13,7 @@ def photo_view(request, photo_id):
 @login_required
 def album_view(request, album_id):
     album = Album.objects.filter(id=album_id).first()
+    print album.photos
     return render(request, 'album.html', {'album': album})
 
 
@@ -24,8 +25,14 @@ def library_view(request):
 @login_required
 def add_album_view(request):
     if request.method == 'POST':
-        form = AlbumForm(request.POST)
-        return render(request, 'add_album.html', {'form': form.as_p})
+        form = AlbumForm(request.POST, request.FILES)
+        if form.is_valid():
+            new_album = form.save(commit=False)
+            new_album.owner = request.user
+            new_album.save()
+            return render(request, 'library.html')
+        else:
+            return render(request, 'add_album.html', {'form': form.as_p})
     else:
         form = AlbumForm()
         return render(request, 'add_album.html', {'form': form.as_p})
@@ -33,4 +40,15 @@ def add_album_view(request):
 
 @login_required
 def add_photo_view(request):
-    return render(request, 'add_photo.html')
+    if request.method == 'POST':
+        form = PhotoForm(request.POST, request.FILES)
+        if form.is_valid():
+            new_photo = form.save(commit=False)
+            new_photo.owner = request.user
+            new_photo.save()
+            return render(request, 'library.html')
+        else:
+            return render(request, 'add_photo.html', {'form': form.as_p})
+    else:
+        form = PhotoForm()
+        return render(request, 'add_photo.html', {'form': form.as_p})
