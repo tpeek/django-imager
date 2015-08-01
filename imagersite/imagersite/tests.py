@@ -1,6 +1,7 @@
 from django.test import Client, TestCase
 from django.contrib.auth.models import User
 from imager_images.models import Photo, Album
+from django.template import Template, Context
 # from imager_profile.models import User
 import factory
 from faker import Factory as FakeFaker
@@ -17,6 +18,7 @@ class PhotoFactory(factory.Factory):
         model = Photo
     title = fake.sentence()
     description = fake.paragraph()
+
 
 class AlbumFactory(factory.Factory):
     class Meta:
@@ -197,7 +199,7 @@ class ProfileTest(TestCase):
 
 
 class LibraryPage(TestCase):
-    """Test for Library view"""
+    """Tests for Library view"""
     def setUp(self):
         """Make a User no photos"""
         self.client = Client()
@@ -210,3 +212,63 @@ class LibraryPage(TestCase):
             password=self.password, email=self.email)
         self.login = self.client.post('/login/', {'username': self.username,
             'password': self.password}, follow=True)
+
+    def test_thumbnails_for_album_with_null_cover(self):
+        # Add photos to album
+        photo1 = PhotoFactory.create(owner=self.user, privacy='Public',
+            file=os.path.join(settings.MEDIA_ROOT, 'amoosing.jpg'))
+        photo2 = PhotoFactory.create(owner=self.user, privacy='Public',
+            file=os.path.join(settings.MEDIA_ROOT, 'googlephoto.jpg'))
+        photo1.save()
+        photo2.save()
+        album = AlbumFactory.create(owner=self.user)
+        album.save()
+        album.photos = [photo1, photo2]
+        response = self.client.get('/images/library/')
+        # Getting the html tag content for thumbnail
+        atemp = Template('src="{{ MEDIA_URL }}seattle.jpg')
+        srclink = atemp.render(Context({'MEDIA_URL': settings.MEDIA_URL,
+            'album': album}))
+        # Assert that thumbnail exists as src attribute
+        self.assertIn(srclink, response.content)
+
+    def test_thumbnails_for_all_albums_user_defined(self):
+        # Add photos to album
+        photo1 = PhotoFactory.create(owner=self.user, privacy='Public',
+            file=os.path.join(settings.MEDIA_ROOT, 'amoosing.jpg'))
+        photo2 = PhotoFactory.create(owner=self.user, privacy='Public',
+            file=os.path.join(settings.MEDIA_ROOT, 'googlephoto.jpg'))
+        photo1.save()
+        photo2.save()
+        album = AlbumFactory.create(owner=self.user, cover=photo1)
+        album.save()
+        album.photos = [photo1, photo2]
+        response = self.client.get('/images/library/')
+        # Getting the html tag content for thumbnail
+        atemp = Template('src="{{ MEDIA_URL }}{{ album.cover.file }}"')
+        srclink = atemp.render(Context({'MEDIA_URL': settings.MEDIA_URL,
+            'album': album}))
+        # Assert that thumbnail exists as src attribute
+        self.assertIn(srclink, response.content)
+
+    def test_titles_for_all_albums_user_defined(self):
+        # Add photos to album
+        photo1 = PhotoFactory.create(owner=self.user, privacy='Public',
+            file=os.path.join(settings.MEDIA_ROOT, 'amoosing.jpg'))
+        photo2 = PhotoFactory.create(owner=self.user, privacy='Public',
+            file=os.path.join(settings.MEDIA_ROOT, 'googlephoto.jpg'))
+        photo1.save()
+        photo2.save()
+        album = AlbumFactory.create(owner=self.user, cover=photo1)
+        album.save()
+        album.photos = [photo1, photo2]
+        response = self.client.get('/images/library/')
+        # Getting the html tag content for thumbnail
+        atemp = Template("{{ album.title }}")
+        atitle = atemp.render(Context({'album': album}))
+        # Assert that thumbnail exists as src attribute
+        self.assertIn(atitle, response.content)
+
+    def test_library_url(self):
+        response = self.client.get('/images/library/')
+        self.assertEqual('/images/library/', response.wsgi_request.path)
