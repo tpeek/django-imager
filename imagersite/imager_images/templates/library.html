@@ -25,7 +25,7 @@
 <div class="container">
     {% for photo in user.photos.all %}
     <div class="col-lg-3 col-md-4 col-sm-5 col-xs-6"><br><br>
-        <h4 class='text-center'>{{ photo.title }}</h4>
+        <h4 class='text-center'>{{ photo.title }}</h4><a href="/images/photos/{{ photo.id }}/edit">Edit</a>
         <a href='/images/photos/{{ photo.id }}'><img style='box-shadow: 10px 15px 15px; width: auto; height: 160px;' class="thumbnail" src="{{ MEDIA_URL }}{{ photo.file }}"></a>
     </div>
     {% endfor %}

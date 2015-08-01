@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from imager_images.models import Photo, Album
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseRedirect
 from .forms import *
 
 
@@ -32,7 +33,7 @@ def add_album_view(request):
             new_album.owner = request.user
             new_album.save()
             form.save_m2m()
-            return render(request, 'library.html')
+            return HttpResponseRedirect('/images/library')
         else:
             return render(request, 'add_album.html', {'form': form.as_p})
     else:
@@ -50,7 +51,7 @@ def add_photo_view(request):
             new_photo = form.save(commit=False)
             new_photo.owner = request.user
             new_photo.save()
-            return render(request, 'library.html')
+            return HttpResponseRedirect('/images/library')
         else:
             return render(request, 'add_photo.html', {'form': form.as_p})
     else:
@@ -68,7 +69,7 @@ def edit_album_view(request, album_id):
             new_album.owner = request.user
             new_album.save()
             form.save_m2m()
-            return render(request, 'library.html')
+            return HttpResponseRedirect('/images/library')
         else:
             form.fields['photos'].queryset = Photo.objects.filter(owner=request.user)
             form.fields['cover'].queryset = Photo.objects.filter(owner=request.user)
@@ -80,3 +81,23 @@ def edit_album_view(request, album_id):
         form.fields['cover'].queryset = Photo.objects.filter(owner=request.user)
         return render(request, 'edit_album.html',
                      {'form': form.as_p, 'album_id': album_id})
+
+
+
+@login_required
+def edit_photo_view(request, photo_id):
+    photo = Photo.objects.filter(id=photo_id).first()
+    if request.method == 'POST':
+        form = PhotoForm(request.POST, request.FILES, instance=photo)
+        if form.is_valid():
+            new_photo = form.save(commit=False)
+            new_photo.owner = request.user
+            new_photo.save()
+            return HttpResponseRedirect('/images/library')
+        else:
+            return render(request, 'edit_photo.html',
+                         {'form': form.as_p, 'album_id': photo_id})
+    else:
+        form = PhotoForm(instance=photo)
+        return render(request, 'edit_photo.html',
+                     {'form': form.as_p, 'photo_id': photo_id})

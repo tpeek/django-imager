@@ -192,7 +192,7 @@ EMAIL_FILE_PATH = 'emails'
 
 # For django-registration-redux
 ACCOUNT_ACTIVATION_DAYS = 3
-LOGIN_REDIRECT_URL = '/images/library/'
+LOGIN_REDIRECT_URL = '/profile/'
 LOGIN_URL = '/login/'
 
 # Added per
