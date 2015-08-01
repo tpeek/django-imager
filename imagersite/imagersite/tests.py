@@ -272,3 +272,45 @@ class LibraryPage(TestCase):
     def test_library_url(self):
         response = self.client.get('/images/library/')
         self.assertEqual('/images/library/', response.wsgi_request.path)
+
+
+class PhotoView(TestCase):
+    """Tests for Library view"""
+    def setUp(self):
+        """Make a User no photos"""
+        self.client = Client()
+        # Fake data
+        self.username = fake.user_name()
+        self.password = fake.password()
+        self.email = fake.email()
+        # Create user
+        self.user = User.objects.create_user(username=self.username,
+            password=self.password, email=self.email)
+        self.login = self.client.post('/login/', {'username': self.username,
+            'password': self.password}, follow=True)
+        # Make photos
+        self.photo1 = PhotoFactory.create(owner=self.user, privacy='Public',
+            file=os.path.join(settings.MEDIA_ROOT, 'amoosing.jpg'))
+        self.photo2 = PhotoFactory.create(owner=self.user, privacy='Public',
+            file=os.path.join(settings.MEDIA_ROOT, 'googlephoto.jpg'))
+        self.photo1.save()
+        self.photo2.save()
+        self.response1 = self.client.get('/images/photos/' +
+                                    str(self.photo1.id) +'/')
+        self.response2 = self.client.get('/images/photos/' +
+                                    str(self.photo2.id) +'/')
+
+    def test_check_photo_url_exists(self):
+        self.assertEqual(self.response1.status_code, 200)
+        self.assertEqual(self.response2.status_code, 200)
+
+    def test_photo_displayed(self):
+        # Getting the html tag content for thumbnail
+        atemp = Template('src="{{ MEDIA_URL }}{{ photo.file }}"')
+        srclink1 = atemp.render(Context({'MEDIA_URL': settings.MEDIA_URL,
+            'photo': self.photo1}))
+        srclink2 = atemp.render(Context({'MEDIA_URL': settings.MEDIA_URL,
+            'photo': self.photo2}))
+        print '\n\n\n' + self.response1.wsgi_request.path
+        self.assertIn(srclink1, self.response1.content)
+        self.assertIn(srclink2, self.response2.content)
