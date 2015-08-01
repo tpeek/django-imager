@@ -26,16 +26,19 @@ def add_album_view(request):
     if request.method == 'POST':
         form = AlbumForm(request.POST, request.FILES)
         form.fields['photos'].queryset = Photo.objects.filter(owner=request.user)
+        form.fields['cover'].queryset = Photo.objects.filter(owner=request.user)
         if form.is_valid():
             new_album = form.save(commit=False)
             new_album.owner = request.user
             new_album.save()
+            form.save_m2m()
             return render(request, 'library.html')
         else:
             return render(request, 'add_album.html', {'form': form.as_p})
     else:
         form = AlbumForm()
         form.fields['photos'].queryset = Photo.objects.filter(owner=request.user)
+        form.fields['cover'].queryset = Photo.objects.filter(owner=request.user)
         return render(request, 'add_album.html', {'form': form.as_p})
 
 
@@ -59,18 +62,21 @@ def add_photo_view(request):
 def edit_album_view(request, album_id):
     album = Album.objects.filter(id=album_id).first()
     if request.method == 'POST':
-        form = AlbumForm(request.POST, request.FILES, instance=album)
+        form = AlbumForm(request.POST, instance=album)
         if form.is_valid():
             new_album = form.save(commit=False)
             new_album.owner = request.user
             new_album.save()
+            form.save_m2m()
             return render(request, 'library.html')
         else:
             form.fields['photos'].queryset = Photo.objects.filter(owner=request.user)
+            form.fields['cover'].queryset = Photo.objects.filter(owner=request.user)
             return render(request, 'edit_album.html',
                          {'form': form.as_p, 'album_id': album_id})
     else:
         form = AlbumForm(instance=album)
         form.fields['photos'].queryset = Photo.objects.filter(owner=request.user)
+        form.fields['cover'].queryset = Photo.objects.filter(owner=request.user)
         return render(request, 'edit_album.html',
                      {'form': form.as_p, 'album_id': album_id})
