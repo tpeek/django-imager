@@ -275,9 +275,8 @@ class LibraryPage(TestCase):
 
 
 class PhotoView(TestCase):
-    """Tests for Library view"""
+    """Tests for Photo view"""
     def setUp(self):
-        """Make a User no photos"""
         self.client = Client()
         # Fake data
         self.username = fake.user_name()
@@ -311,6 +310,45 @@ class PhotoView(TestCase):
             'photo': self.photo1}))
         srclink2 = atemp.render(Context({'MEDIA_URL': settings.MEDIA_URL,
             'photo': self.photo2}))
-        print '\n\n\n' + self.response1.wsgi_request.path
         self.assertIn(srclink1, self.response1.content)
         self.assertIn(srclink2, self.response2.content)
+
+
+class AlbumView(TestCase):
+    """Tests for Album view"""
+    def setUp(self):
+        self.client = Client()
+        # Fake data
+        self.username = fake.user_name()
+        self.password = fake.password()
+        self.email = fake.email()
+        # Create user
+        self.user = User.objects.create_user(username=self.username,
+            password=self.password, email=self.email)
+        self.login = self.client.post('/login/', {'username': self.username,
+            'password': self.password}, follow=True)
+        # Make photos
+        self.photo1 = PhotoFactory.create(owner=self.user, privacy='Public',
+            file=os.path.join(settings.MEDIA_ROOT, 'amoosing.jpg'))
+        self.photo2 = PhotoFactory.create(owner=self.user, privacy='Public',
+            file=os.path.join(settings.MEDIA_ROOT, 'googlephoto.jpg'))
+        self.photo1.save()
+        self.photo2.save()
+        self.album = AlbumFactory.create(owner=self.user, cover=self.photo1)
+        self.album.save()
+        self.album.photos = [self.photo1, self.photo2]
+        self.response = self.client.get('/images/albums/' +
+                                        str(self.album.id) + '/')
+
+    def test_photo_view_url_exists(self):
+        self.assertEqual(self.response.status_code, 200)
+
+    def test_photos_displayed(self):
+        # Getting the html tag content for thumbnails
+        atemp = Template('src="{{ MEDIA_URL }}{{ photo.file }}"')
+        srclink1 = atemp.render(Context({'MEDIA_URL': settings.MEDIA_URL,
+            'photo': self.photo1}))
+        srclink2 = atemp.render(Context({'MEDIA_URL': settings.MEDIA_URL,
+            'photo': self.photo2}))
+        self.assertIn(srclink1, self.response.content)
+        self.assertIn(srclink2, self.response.content)
