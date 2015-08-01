@@ -1,6 +1,7 @@
 from django.test import Client, TestCase
+from django.contrib.auth.models import User
 from imager_images.models import Photo
-from imager_profile.models import User
+# from imager_profile.models import User
 import factory
 from faker import Factory as FakeFaker
 from django.conf import settings
@@ -101,7 +102,7 @@ class LogoutExists(TestCase):
         self.assertEqual(response.status_code, 200)
 
 
-class RegisterUser(unittest.TestCase):
+class RegisterUser(TestCase):
     """Test for 200 OK at '/'"""
     def setUp(self):
         self.client = Client()
@@ -117,7 +118,7 @@ class RegisterUser(unittest.TestCase):
         self.assertIn('activate', response.content)
 
     def test_activate(self):
-        register = self.client.post('/register/', {'username': self.username, 
+        register = self.client.post('/register/', {'username': self.username,
             'password1': self.password, 'password2': self.password,
             'email': self.email}, follow=True)
         # Regex lifted from:
@@ -139,11 +140,55 @@ class ProfileTest(TestCase):
     def setUp(self):
         """Make a User no photos"""
         self.client = Client()
-        owner = UserFactory.create()
-        owner.save()
-        # self.photo1 = PhotoFactory.create(owner=owner, privacy='Public',
+
+        # Fake data
+        self.username = fake.user_name()
+        self.password = fake.password()
+        self.email = fake.email()
+
+        # response = self.client.post('/register/', {'username': self.username,
+        #     'password1': self.password, 'password2': self.password,
+        #     'email': self.email}, follow=True)
+        # # Return object corresponding to created user
+        # self.owner = User.objects.get(username=self.username)
+        # print self.username, self.password
+
+
+    def test_count_no_photos(self):
+        register = self.client.post('/register/', {'username': self.username,
+            'password1': self.password, 'password2': self.password,
+            'email': self.email}, follow=True)
+        # Regex lifted from:
+        # http://stackoverflow.com/questions/9760588/how-do-you-extract-a-url-from-a-string-using-python
+        link = re.search("(?P<url>https?://[^\s]+)",
+            mail.outbox[0].body).group("url")
+        link_bits = link.split('/')
+        rel_uri = "/" + "/".join(link_bits[3:])
+        activate = self.client.get(rel_uri, follow=True)
+        self.assertIn('activate/complete', activate.wsgi_request.path)
+        # Newly registered user now attempts to login
+        logginin = self.client.post('/login/', {'username': self.username,
+            'password': self.password}, follow=True)
+        self.assertIn(self.username, logginin.content)
+        # print self.username, self.password
+        # Content test here. Not ideal; trying to trim out tag crud to
+        # make robust.
+        # self.assertIn('>0</', response.content)
+        print logginin.status_code, logginin.content
+        # print self.username
+
+
+    def test_count_photos(self):
+        # # Add a couple photos to the user we created
+        # self.photo1 = PhotoFactory.create(owner=self.owner, privacy='Public',
         #     file=os.path.join(settings.MEDIA_ROOT, 'amoosing.jpg'))
-        # self.photo2 = PhotoFactory.create(owner=owner, privacy='Public',
+        # self.photo2 = PhotoFactory.create(owner=self.owner, privacy='Public',
         #     file=os.path.join(settings.MEDIA_ROOT, 'googlephoto.jpg'))
         # self.photo1.save()
         # self.photo2.save()
+        # response = self.client.get('/profile/')
+
+        # self.assertIn('>2</', response.content)
+        # self.assertIn('>1</', response.content)
+
+        pass
