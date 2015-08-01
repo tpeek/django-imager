@@ -37,7 +37,7 @@ class UserFactory(factory.Factory):
                                      a.first_name[:1], a.last_name[1:]).lower())
 
 
-class HomeExists(TestCase):
+class HomeView(TestCase):
     """Test for 200 OK at '/'"""
     def setUp(self):
         self.client = Client()
@@ -51,11 +51,8 @@ class HomeExists(TestCase):
         self.assertIn('<a href="/login/">login</a>', response.content)
         self.assertIn('<a href="/register/">register</a>', response.content)
 
-
-class HomeRandomPhotos(TestCase):
-    """Test for random photo selection on website"""
-    def setUp(self):
-        self.client = Client()
+    def test_random_photo_in_site(self):
+        # Special setup
         owner = UserFactory.create()
         owner.save()
         self.photo1 = PhotoFactory.create(owner=owner, privacy='Public',
@@ -64,21 +61,14 @@ class HomeRandomPhotos(TestCase):
             file=os.path.join(settings.MEDIA_ROOT, 'googlephoto.jpg'))
         self.photo1.save()
         self.photo2.save()
-
-    def test_random_photo_in_site(self):
+        # Test
         pics = set()
         for i in range(100):
             response = self.client.get('/')
             pics.add(response.context['pic_url'])
         self.assertEqual(len(pics), 2)
 
-
-class HomeStaticPhoto(TestCase):
-    """Test for static photo on website"""
-    def setUp(self):
-        self.client = Client()
-
-    def test_random_photo_in_site(self):
+    def test_static_photo_in_site(self):
         pics = set()
         for i in range(100):
             response = self.client.get('/')
@@ -141,7 +131,7 @@ class RegisterUser(TestCase):
 
 
 class ProfileTest(TestCase):
-    """Test for Profile view"""
+    """Tests for Profile view"""
     def setUp(self):
         """Make a User no photos"""
         self.client = Client()
@@ -204,3 +194,19 @@ class ProfileTest(TestCase):
 
     def test_profile_after_user_login(self):
         self.assertEqual(self.login.wsgi_request.path, '/profile/')
+
+
+class LibraryPage(TestCase):
+    """Test for Library view"""
+    def setUp(self):
+        """Make a User no photos"""
+        self.client = Client()
+        # Fake data
+        self.username = fake.user_name()
+        self.password = fake.password()
+        self.email = fake.email()
+        # Create user
+        self.user = User.objects.create_user(username=self.username,
+            password=self.password, email=self.email)
+        self.login = self.client.post('/login/', {'username': self.username,
+            'password': self.password}, follow=True)
