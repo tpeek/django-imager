@@ -1,6 +1,6 @@
 from django.test import Client, TestCase
 from django.contrib.auth.models import User
-from imager_images.models import Photo
+from imager_images.models import Photo, Album
 # from imager_profile.models import User
 import factory
 from faker import Factory as FakeFaker
@@ -8,7 +8,6 @@ from django.conf import settings
 import os
 from django.core import mail
 import re
-import unittest
 
 fake = FakeFaker.create()
 
@@ -16,6 +15,12 @@ fake = FakeFaker.create()
 class PhotoFactory(factory.Factory):
     class Meta:
         model = Photo
+    title = fake.sentence()
+    description = fake.paragraph()
+
+class AlbumFactory(factory.Factory):
+    class Meta:
+        model = Album
     title = fake.sentence()
     description = fake.paragraph()
 
@@ -111,7 +116,7 @@ class RegisterUser(TestCase):
         self.email = fake.email()
 
     def test_register_user(self):
-        response = self.client.post('/register/', {'username': self.username, 
+        response = self.client.post('/register/', {'username': self.username,
             'password1': self.password, 'password2': self.password,
             'email': self.email}, follow=True)
         self.assertEqual(response.status_code, 200)
@@ -140,55 +145,55 @@ class ProfileTest(TestCase):
     def setUp(self):
         """Make a User no photos"""
         self.client = Client()
-
         # Fake data
         self.username = fake.user_name()
         self.password = fake.password()
         self.email = fake.email()
-
-        # response = self.client.post('/register/', {'username': self.username,
-        #     'password1': self.password, 'password2': self.password,
-        #     'email': self.email}, follow=True)
-        # # Return object corresponding to created user
-        # self.owner = User.objects.get(username=self.username)
-        # print self.username, self.password
-
+        # Create user
+        self.user = User.objects.create_user(username=self.username,
+            password=self.password, email=self.email)
+        self.login = self.client.post('/login/', {'username': self.username,
+            'password': self.password}, follow=True)
 
     def test_count_no_photos(self):
-        register = self.client.post('/register/', {'username': self.username,
-            'password1': self.password, 'password2': self.password,
-            'email': self.email}, follow=True)
-        # Regex lifted from:
-        # http://stackoverflow.com/questions/9760588/how-do-you-extract-a-url-from-a-string-using-python
-        link = re.search("(?P<url>https?://[^\s]+)",
-            mail.outbox[0].body).group("url")
-        link_bits = link.split('/')
-        rel_uri = "/" + "/".join(link_bits[3:])
-        activate = self.client.get(rel_uri, follow=True)
-        self.assertIn('activate/complete', activate.wsgi_request.path)
-        # Newly registered user now attempts to login
-        logginin = self.client.post('/login/', {'username': self.username,
-            'password': self.password}, follow=True)
-        self.assertIn(self.username, logginin.content)
-        # print self.username, self.password
-        # Content test here. Not ideal; trying to trim out tag crud to
-        # make robust.
-        # self.assertIn('>0</', response.content)
-        print logginin.status_code, logginin.content
-        # print self.username
+        viewprof = self.client.get('/profile/')
+        self.assertIn('>0</', viewprof.content)
+        # Should do this check; a non logged in response could potentially
+        # also display zero photos
+        self.assertIn(self.username, viewprof.content)
 
+    def test_count_photos_no_albums(self):
+        viewprof = self.client.get('/profile/')
+         # Add a couple photos to the user we created
+        photo1 = PhotoFactory.create(owner=self.user, privacy='Public',
+            file=os.path.join(settings.MEDIA_ROOT, 'amoosing.jpg'))
+        photo2 = PhotoFactory.create(owner=self.user, privacy='Public',
+            file=os.path.join(settings.MEDIA_ROOT, 'googlephoto.jpg'))
+        photo1.save()
+        photo2.save()
+        response = self.client.get('/profile/')
 
-    def test_count_photos(self):
-        # # Add a couple photos to the user we created
-        # self.photo1 = PhotoFactory.create(owner=self.owner, privacy='Public',
-        #     file=os.path.join(settings.MEDIA_ROOT, 'amoosing.jpg'))
-        # self.photo2 = PhotoFactory.create(owner=self.owner, privacy='Public',
-        #     file=os.path.join(settings.MEDIA_ROOT, 'googlephoto.jpg'))
-        # self.photo1.save()
-        # self.photo2.save()
-        # response = self.client.get('/profile/')
+        # Number of photos
+        self.assertIn('>2</', response.content)
+        # Number of albums
+        self.assertIn('>0</', response.content)
 
+    def test_count_photos_one_albums(self):
+        viewprof = self.client.get('/profile/')
+        album = AlbumFactory.create(owner=self.user)
+         # Add a couple photos to the user we created
+        photo1 = PhotoFactory.create(owner=self.user, privacy='Public',
+            file=os.path.join(settings.MEDIA_ROOT, 'amoosing.jpg'))
+        photo2 = PhotoFactory.create(owner=self.user, privacy='Public',
+            file=os.path.join(settings.MEDIA_ROOT, 'googlephoto.jpg'))
+        photo1.save()
+        photo2.save()
+        album.photos = [photo1, photo2]
+        response = self.client.get('/profile/')
+
+        print response.content
+        # # Number of photos
         # self.assertIn('>2</', response.content)
-        # self.assertIn('>1</', response.content)
+        # # Number of albums
+        # self.assertIn('>0</', response.content)
 
-        pass
