@@ -203,4 +203,4 @@ class ProfileTest(TestCase):
         self.assertIn('href="/images/library/"', response.content)
 
     def test_profile_after_user_login(self):
-        self.assertEqual(self.login.redirect_chain[-1], '/profile/')
+        self.assertEqual(self.login.wsgi_request.path, '/profile/')
