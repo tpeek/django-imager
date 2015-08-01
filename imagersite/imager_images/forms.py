@@ -5,7 +5,7 @@ from django.forms import ModelForm
 class AlbumForm(ModelForm):
     class Meta:
         model = Album
-        fields = ['title', 'description', 'privacy', 'cover', 'photos']
+        fields = ['title', 'description', 'privacy', 'cover']
 
 
 class PhotoForm(ModelForm):

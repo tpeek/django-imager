@@ -5,8 +5,15 @@
 <div class="container">
      {% for album in user.albums.all %}
         <div class="col-lg-3 col-md-4 col-sm-5 col-xs-6">
-        <h4 class='text-center'>{{ album.title }}</h4>
-        <a href='/images/albums/{{ album.id }}'><img style='box-shadow: 10px 15px 15px; width: auto; height: 160px;' class="thumbnail" src="{{ MEDIA_URL }}{{ album.cover.file }}"></a>
+        <h4 class='text-center'>{{ album.title }}</h4><a href="/images/albums/{{ album.id }}/edit">Edit</a>
+        <a href='/images/albums/{{ album.id }}'><img style='box-shadow: 10px 15px 15px; width: auto; height: 160px;' class="thumbnail"
+
+        {% if album.cover.file %}
+        src="{{ MEDIA_URL }}{{ album.cover.file }}">
+        {% else %}
+        src="{{ MEDIA_URL }}seattle.jpg">
+        {% endif %}
+        </a>
         </div>
       {% endfor %}
       <div class="col-lg-3 col-md-4 col-sm-5 col-xs-6">
