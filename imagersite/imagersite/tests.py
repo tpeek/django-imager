@@ -6,7 +6,7 @@ import factory
 from faker import Factory as FakeFaker
 from django.conf import settings
 import os
-from django.core.mail import outbox
+from django.core import mail
 import re
 
 fake = FakeFaker.create()
@@ -137,7 +137,7 @@ class RegisterUser(unittest.TestCase):
         # Regex lifted from:
         # http://stackoverflow.com/questions/9760588/how-do-you-extract-a-url-from-a-string-using-python
         link = re.search("(?P<url>https?://[^\s]+)",
-            outbox[0].body).group("url")
+            mail.outbox[0].body).group("url")
         link_bits = link.split('/')
         rel_uri = "/" + "/".join(link_bits[3:])
         activate = self.client.get(rel_uri, follow=True)
