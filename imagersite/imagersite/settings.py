@@ -192,8 +192,8 @@ EMAIL_FILE_PATH = 'emails'
 
 # For django-registration-redux
 ACCOUNT_ACTIVATION_DAYS = 3
-LOGIN_REDIRECT_URL = '/images/library/'
-LOGIN_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = '/profile/'
+LOGIN_URL = '/login/'
 
 # Added per
 # http://stackoverflow.com/questions/11814059/site-matching-query-does-not-exist

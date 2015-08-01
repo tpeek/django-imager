@@ -180,20 +180,27 @@ class ProfileTest(TestCase):
 
     def test_count_photos_one_albums(self):
         viewprof = self.client.get('/profile/')
-        album = AlbumFactory.create(owner=self.user)
-         # Add a couple photos to the user we created
+
+        # Add a couple photos to the user we created
         photo1 = PhotoFactory.create(owner=self.user, privacy='Public',
             file=os.path.join(settings.MEDIA_ROOT, 'amoosing.jpg'))
         photo2 = PhotoFactory.create(owner=self.user, privacy='Public',
             file=os.path.join(settings.MEDIA_ROOT, 'googlephoto.jpg'))
         photo1.save()
         photo2.save()
+        album = AlbumFactory.create(owner=self.user, cover=photo1)
+        album.save()
         album.photos = [photo1, photo2]
         response = self.client.get('/profile/')
 
-        print response.content
-        # # Number of photos
-        # self.assertIn('>2</', response.content)
-        # # Number of albums
-        # self.assertIn('>0</', response.content)
+        # Number of photos
+        self.assertIn('>2</', response.content)
+        # Number of albums
+        self.assertIn('>1</', response.content)
 
+    def test_check_links(self):
+        response = self.client.get('/profile/')
+        self.assertIn('href="/images/library/"', response.content)
+
+    def test_profile_after_user_login(self):
+        self.assertEqual(self.login.redirect_chain[-1], '/profile/')
