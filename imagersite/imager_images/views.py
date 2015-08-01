@@ -25,6 +25,7 @@ def library_view(request):
 def add_album_view(request):
     if request.method == 'POST':
         form = AlbumForm(request.POST, request.FILES)
+        form.fields['photos'].queryset = Photo.objects.filter(owner=request.user)
         if form.is_valid():
             new_album = form.save(commit=False)
             new_album.owner = request.user
@@ -34,6 +35,7 @@ def add_album_view(request):
             return render(request, 'add_album.html', {'form': form.as_p})
     else:
         form = AlbumForm()
+        form.fields['photos'].queryset = Photo.objects.filter(owner=request.user)
         return render(request, 'add_album.html', {'form': form.as_p})
 
 
@@ -64,9 +66,11 @@ def edit_album_view(request, album_id):
             new_album.save()
             return render(request, 'library.html')
         else:
+            form.fields['photos'].queryset = Photo.objects.filter(owner=request.user)
             return render(request, 'edit_album.html',
                          {'form': form.as_p, 'album_id': album_id})
     else:
         form = AlbumForm(instance=album)
+        form.fields['photos'].queryset = Photo.objects.filter(owner=request.user)
         return render(request, 'edit_album.html',
                      {'form': form.as_p, 'album_id': album_id})
