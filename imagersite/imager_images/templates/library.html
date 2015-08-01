@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>{{ user.username }}'s Albums</h1>
+<div class="container">
+     {% for album in user.albums.all %}
+        <div class="col-lg-3 col-md-4 col-sm-5 col-xs-6">
+        <h4 class='text-center'>{{ album.title }}</h4>
+        <a href='/images/albums/{{ album.id }}'><img style='box-shadow: 10px 15px 15px; width: auto; height: 160px;' class="thumbnail" src="{{ MEDIA_URL }}{{ album.cover.file }}"></a>
+        </div>
+        {% if album.cover.file %}
+            src="{{ MEDIA_URL }}{{ album.cover.file }}">
+        {% else %}
+            src="{{ MEDIA_URL }}seattle.jpg">
+        {% endif %}
+     {% endfor %}
+</div>
+<h1 class="divider">{{ user.username }}'s Photos</h1>
+<div class="container">
+    {% for photo in user.photos.all %}
+    <div class="col-lg-3 col-md-4 col-sm-5 col-xs-6"><br><br>
+        <h4 class='text-center'>{{ photo.title }}</h4>
+        <a href='/images/photos/{{ photo.id }}'><img style='box-shadow: 10px 15px 15px; width: auto; height: 160px;' class="thumbnail" src="{{ MEDIA_URL }}{{ photo.file }}"></a>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}
