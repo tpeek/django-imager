@@ -485,3 +485,45 @@ class AlbumAdd(TestCase):
             privacy="Public", photos=[photo1, photo2], cover=photo2)
         response = self.client.post('/images/photos/add/', data=fields)
         self.assertEqual(response.status_code, 200)
+
+
+class AlbumEdit(TestCase):
+    def setUp(self):
+        self.client = Client()
+        # Fake data
+        self.username = fake.user_name()
+        self.password = fake.password()
+        self.email = fake.email()
+        # Create user
+        self.user = User.objects.create_user(username=self.username,
+            password=self.password, email=self.email)
+        self.login = self.client.post('/login/', {'username': self.username,
+            'password': self.password}, follow=True)
+        # Make photos
+        self.photo1 = PhotoFactory.create(owner=self.user, privacy='Public',
+            file=os.path.join(settings.MEDIA_ROOT, 'amoosing.jpg'))
+        self.photo2 = PhotoFactory.create(owner=self.user, privacy='Public',
+            file=os.path.join(settings.MEDIA_ROOT, 'googlephoto.jpg'))
+        self.photo1.save()
+        self.photo2.save()
+        self.album = AlbumFactory.create(owner=self.user, cover=self.photo1)
+        self.album.save()
+        self.album.photos = [self.photo1, self.photo2]
+
+    def test_album_edit_has_form(self):
+        response = self.client.get('/images/albums/{}/edit/'.format(self.album.id))
+        self.assertTrue(response.context['form'])
+        self.assertEqual(response.status_code, 200)
+
+    def test_album_edit_has_populated_data(self):
+        response = self.client.get('/images/albums/{}/edit/'.format(self.album.id))
+        self.assertIn(self.album.title, response.content)
+        self.assertIn(self.album.description, response.content)
+        self.assertIn(self.album.privacy, response.content)
+
+    def test_album_edit_submits(self):
+        fields = dict(title=fake.sentence(), description=fake.paragraph(),
+            privacy="Private", cover=self.photo2, photos=[self.photo2])
+        response = self.client.post('/images/albums/{}/edit/'.format(
+                                    self.album.id), data=fields)
+        self.assertEqual(response.status_code, 200)
