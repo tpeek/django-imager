@@ -1,6 +1,7 @@
 from django.test import Client, TestCase
 from django.contrib.auth.models import User
 from imager_images.models import Photo, Album
+from imager_images.forms import AlbumForm, PhotoForm
 from django.template import Template, Context
 from django.core.urlresolvers import reverse
 # from imager_profile.models import User
@@ -383,3 +384,104 @@ class AlbumView(TestCase):
             'photo': self.photo2}))
         self.assertIn(srclink1, self.response.content)
         self.assertIn(srclink2, self.response.content)
+
+
+class PhotoAdd(TestCase):
+    def setUp(self):
+        self.client = Client()
+        # Fake data
+        self.username = fake.user_name()
+        self.password = fake.password()
+        self.email = fake.email()
+        # Create user
+        self.user = User.objects.create_user(username=self.username,
+            password=self.password, email=self.email)
+        self.login = self.client.post('/login/', {'username': self.username,
+            'password': self.password}, follow=True)
+
+    def test_photo_has_form(self):
+        response = self.client.get('/images/photos/add/')
+        self.assertTrue(response.context['form'])
+
+    def test_photo_form_has_all_fields(self):
+        fields = dict(title=fake.sentence(), description=fake.paragraph(),
+            privacy="Private", file=os.path.join(
+            settings.MEDIA_ROOT, 'googlephoto.jpg'))
+        response = self.client.post('/images/photos/add/', data=fields)
+        self.assertEqual(response.status_code, 200)
+
+
+class PhotoEdit(TestCase):
+    def setUp(self):
+        self.client = Client()
+        # Fake data
+        self.username = fake.user_name()
+        self.password = fake.password()
+        self.email = fake.email()
+        # Create user
+        self.user = User.objects.create_user(username=self.username,
+            password=self.password, email=self.email)
+        self.login = self.client.post('/login/', {'username': self.username,
+            'password': self.password}, follow=True)
+        # Make photos
+        self.photo1 = PhotoFactory.create(owner=self.user, privacy='Public',
+            file=os.path.join(settings.MEDIA_ROOT, 'amoosing.jpg'))
+        self.photo2 = PhotoFactory.create(owner=self.user, privacy='Public',
+            file=os.path.join(settings.MEDIA_ROOT, 'googlephoto.jpg'))
+        self.photo1.save()
+        self.photo2.save()
+
+    def test_photo_edit_has_form(self):
+        response = self.client.get('/images/photos/{}/edit/'.format(self.photo1.id))
+        self.assertTrue(response.context['form'])
+        self.assertEqual(response.status_code, 200)
+
+    def test_photo_edit_has_populated_data(self):
+        response = self.client.get('/images/photos/{}/edit/'.format(self.photo1.id))
+        self.assertIn(self.photo1.title, response.content)
+        self.assertIn(self.photo1.description, response.content)
+        self.assertIn(self.photo1.privacy, response.content)
+        # Getting the link for the photo
+        phototemp = Template("{{ photo.file }}")
+        photolink = phototemp.render(Context({'photo': self.photo1}))
+        self.assertIn(photolink, response.content)
+
+    def test_photo_edit_submits(self):
+        fields = dict(title=fake.sentence(), description=fake.paragraph(),
+            privacy="Private", file=os.path.join(
+            settings.MEDIA_ROOT, 'googlephoto.jpg'))
+        response = self.client.post('/images/photos/add/', data=fields)
+        self.assertEqual(response.status_code, 200)
+
+
+class AlbumAdd(TestCase):
+    def setUp(self):
+        self.client = Client()
+        # Fake data
+        self.username = fake.user_name()
+        self.password = fake.password()
+        self.email = fake.email()
+        # Create user
+        self.user = User.objects.create_user(username=self.username,
+            password=self.password, email=self.email)
+        self.login = self.client.post('/login/', {'username': self.username,
+            'password': self.password}, follow=True)
+
+    def test_album_has_form(self):
+        response = self.client.get('/images/albums/add/')
+        self.assertTrue(response.context['form'])
+        self.assertEqual(response.status_code, 200)
+
+    def test_photo_form_has_all_fields(self):
+        # Make photos
+        photo1 = PhotoFactory.create(owner=self.user, privacy='Public',
+            file=os.path.join(settings.MEDIA_ROOT, 'amoosing.jpg'))
+        photo2 = PhotoFactory.create(owner=self.user, privacy='Public',
+            file=os.path.join(settings.MEDIA_ROOT, 'googlephoto.jpg'))
+        photo1.save()
+        photo2.save()
+        # Post album fields
+        fields = dict(title=fake.sentence(), description=fake.paragraph(),
+            privacy="Public", photos=[photo1, photo2], cover=photo2)
+        response = self.client.post('/images/photos/add/', data=fields)
+        self.assertEqual(response.status_code, 200)
