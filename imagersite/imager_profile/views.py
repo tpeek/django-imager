@@ -20,11 +20,11 @@ def edit_profile_view(request):
             return HttpResponseRedirect('/profile')
         else:
             return render(request, 'edit_profile.html',
-                         {'profile_form': form.as_p, 'user_form': user_form})
+                         {'profile_form': profile_form.as_p,
+                          'user_form': user_form.as_p})
     else:
         profile_form = ProfileForm(instance=request.user.profile)
         user_form = UserForm(instance=request.user)
-        return render(request,
-                      'edit_profile.html',
+        return render(request,'edit_profile.html',
                       {'profile_form': profile_form.as_p,
                        'user_form': user_form.as_p})

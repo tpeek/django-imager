@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 class ProfileForm(ModelForm):
     class Meta:
         model = ImagerProfile
-        fields = ['name', 'camera', 'address',
+        fields = ['nickname', 'camera', 'address',
                   'website_url', 'photography_type']
 
 
