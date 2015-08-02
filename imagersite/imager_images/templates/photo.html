@@ -1,14 +1,46 @@
 {% extends "base.html" %}
-{% block content %}
 
+{% block content %}
+ <script src="{{ MEDIA_URL }}facetagger.js" type="text/javascript"></script>
+ <style src="{{ MEDIA_URL }}facetagger.css" type="text/css"></style>
 <body>
 <h1>{{ photo.title }}</h1>
     <div class="img-responsive">
     <h6 class='text-center'>Uploaded on {{ photo.date_uploaded }} -- {{photo.privacy }}</h6>
     <pre class='text-center'>{{ photo.description }}</pre>
     </div>
+    <container id='photo-container'>
         <img class="img-responsive" src="{{ MEDIA_URL }}{{ photo.file }}">
+    </container>
     </div>
+    <form action="{% url 'photo' photo.id %}" method="post">
+    {% csrf_token %}
+    <input type="submit" value="Detect Faces" />
+
+    <script type="text/javascript">
+        FaceTagger.init({
+                container: "#photo-container",
+                labelUrl: "{{photo.id}}/faces",
+                csrf: "{{ csrf_token }}",
+                originalWidth: 1024,
+                originalHeight: 1024,
+                newWidth: $("#photo-container img").width(),
+                newHeight: $("#photo-container img").height()
+            });
+        {% for f in faces %}
+            var face = {
+                id: {{f.id}},
+                name: "{{f.name}}",
+                x: {{f.x}},
+                y: {{f.y}},
+                width: {{f.width}},
+                height: {{f.height}}
+            };
+            FaceTagger.make(face);
+        {% endfor %}
+    </script>
+
+</form>
 </body>
 
 {% endblock %}
