@@ -12,14 +12,19 @@ def profile_view(request):
 @login_required
 def edit_profile_view(request):
     if request.method == 'POST':
-        form = ProfileForm(request.POST, instance=request.user.profile)
-        if form.is_valid():
-            new_profile = form.save()
+        profile_form = ProfileForm(request.POST, instance=request.user.profile)
+        user_form = UserForm(request.POST, instance=request.user)
+        if profile_form.is_valid() and user_form.is_valid():
+            new_profile = profile_form.save()
+            new_user = user_form.save()
             return HttpResponseRedirect('/profile')
         else:
             return render(request, 'edit_profile.html',
-                         {'form': form.as_p})
+                         {'profile_form': form.as_p, 'user_form': user_form})
     else:
-        form = ProfileForm(instance=request.user.profile)
-        return render(request, 'edit_profile.html',
-                     {'form': form.as_p})
+        profile_form = ProfileForm(instance=request.user.profile)
+        user_form = UserForm(instance=request.user)
+        return render(request,
+                      'edit_profile.html',
+                      {'profile_form': profile_form.as_p,
+                       'user_form': user_form.as_p})
