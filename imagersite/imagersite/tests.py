@@ -2,6 +2,7 @@ from django.test import Client, TestCase
 from django.contrib.auth.models import User
 from imager_images.models import Photo, Album
 from django.template import Template, Context
+from django.core.urlresolvers import reverse
 # from imager_profile.models import User
 import factory
 from faker import Factory as FakeFaker
@@ -272,6 +273,20 @@ class LibraryPage(TestCase):
     def test_library_url(self):
         response = self.client.get('/images/library/')
         self.assertEqual('/images/library/', response.wsgi_request.path)
+
+    def test_library_links_to_add_views_no_photos_albums(self):
+        """Check that library page has a link to add photo and add album
+        views"""
+        response = self.client.get('/images/library/')
+        # No photos this fct; add buttons still present
+        self.assertIn('/images/photos/add/', response.content)
+        self.assertIn('/images/albums/add/', response.content)
+        # No photos means edit paths not present
+        self.assertNotIn('/images/photos/edit/', response.content)
+        self.assertNotIn('/images/albums/edit/', response.content)
+
+
+
 
 
 class PhotoView(TestCase):
