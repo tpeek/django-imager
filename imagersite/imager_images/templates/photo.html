@@ -11,7 +11,6 @@
 
 #photo-container img
 {
-    width: 600px;
     float: left;
 }
 
@@ -78,8 +77,8 @@
                 container: "#photo-container",
                 labelUrl: "{{photo.id}}/faces",
                 csrf: "{{ csrf_token }}",
-                originalWidth: 852,
-                originalHeight: 480,
+                originalWidth: $("#photo-container img").width(),
+                originalHeight: $("#photo-container img").height(),
                 newWidth: $("#photo-container img").width(),
                 newHeight: $("#photo-container img").height()
             });
