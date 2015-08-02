@@ -4,14 +4,24 @@
 <body>
 <a href="{% url 'edit_profile' %}">Edit Profile</a>
 <h1><big>Well howdy there, {{ user.profile }}.</big></h1><br>
-<h4>You joined us on {{ user.date_joined|date:"l, F dS, Y." }}<br>
-{% if user.profile.camera %}
-You own one of the best cameras, a {{ user.profile.camera }}.
-{% endif %}<br>
-{% if user.profile.photography_type %}
-You specialize in {{ user.profile.get_photo_type }} photography. That's one of the coolest!
-{% endif %}</h4>
-</h1>
+<h4>
+    You joined us on {{ user.date_joined|date:"l, F dS, Y." }}<br>
+    {% if user.profile.camera %}
+    You own one of the best cameras, a {{ user.profile.camera }}.<br>
+    {% endif %}
+    {% if user.profile.photography_type %}
+    You specialize in {{ user.profile.get_photo_type }} photography. That's one of the coolest!<br>
+    {% endif %}
+    {% if user.profile.website_url %}
+    Your website, <a href="{{ user.profile.website_url }}">{{ user.profile.website_url }}</a>, is neat, I guess.<br>
+    {% endif %}
+    {% if user.email %}
+    We will write to your email, {{ user.email }}, every day.<br>
+    {% endif %}
+
+
+
+</h4>
 <h3>Looks like you need to upload more photos!</h3>
 <a href="{% url 'library' %}"><h1 class="col-md-6"><strong style="font-size:200px;">{{ user.albums.all|length }}</strong><br>Albums</h1></a>
 <a href="{% url 'library' %}"><h1 class="col-md-6"><strong style="font-size:200px;">{{ user.photos.all|length }}</strong><br>Photos</h1></a>
