@@ -2,6 +2,7 @@
 {% block content %}
 
 <body>
+<a href="{% url 'edit_profile' %}">Edit Profile</a>
 <h1><big>Hello, {{ user.username }}. You joined us on {{ user.date_joined|date:"l, F dS, Y." }}</big></h1>
 <h3>Looks like you need to upload more photos!</h3>
 <a href="{% url 'library' %}"><h1 class="col-md-6"><strong style="font-size:200px;">{{ user.albums.all|length }}</strong><br>Albums</h1></a>
