@@ -3,7 +3,15 @@
 
 <body>
 <a href="{% url 'edit_profile' %}">Edit Profile</a>
-<h1><big>Hello, {{ user.username }}. You joined us on {{ user.date_joined|date:"l, F dS, Y." }}</big></h1>
+<h1><big>Well howdy there, {{ user.profile }}.</big></h1><br>
+<h4>You joined us on {{ user.date_joined|date:"l, F dS, Y." }}<br>
+{% if user.profile.camera %}
+You own one of the best cameras, a {{ user.profile.camera }}.
+{% endif %}<br>
+{% if user.profile.photography_type %}
+You specialize in {{ user.profile.photography_type }} photography. That's one of the coolest!
+{% endif %}</h4>
+</h1>
 <h3>Looks like you need to upload more photos!</h3>
 <a href="{% url 'library' %}"><h1 class="col-md-6"><strong style="font-size:200px;">{{ user.albums.all|length }}</strong><br>Albums</h1></a>
 <a href="{% url 'library' %}"><h1 class="col-md-6"><strong style="font-size:200px;">{{ user.photos.all|length }}</strong><br>Photos</h1></a>
