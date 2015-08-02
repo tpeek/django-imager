@@ -3,15 +3,51 @@ from imager_images.models import Photo, Album
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
 from django.core.exceptions import PermissionDenied
+from django.conf import settings
 from .forms import *
+
+import Algorithmia
+import base64
+
+
+def get_faces(path):
+    with open(settings.MEDIA_ROOT + "/" + path, "rb") as img:
+        bimage = base64.b64encode(img.read())
+    Algorithmia.apiKey = "Simple simivSeptsC+ZsLks5ia0wXmFbC1"
+    result = Algorithmia.algo('/ANaimi/FaceDetection').pipe(bimage)
+    faces = []
+    for rect in result:
+        face = Face()
+        face.name = "Petter Rabbit"
+        face.x = rect['x']
+        face.y = rect['y']
+        face.width = rect['width']
+        face.height = rect['height']
+        faces.append(face)
+        for face in faces:
+            face.save()
+    return faces
+
+
+def set_faces(request, photo_id):
+    photo = Photo.objects.get(pk=photo_id)
+    face_id = request.POST.get('photo_id', '0')
+    face = Face.objects.get(id=face_id)
+    face.name = Face.objects.get('name', 'Unknown')
+    face.save()
 
 
 @login_required
 def photo_view(request, photo_id):
     if request.user != Photo.objects.filter(pk=photo_id).first().owner:
         raise PermissionDenied
-    photo = Photo.objects.filter(id=photo_id).first()
-    return render(request, 'photo.html', {'photo': photo})
+    photo = Photo.objects.filter(pk=photo_id).first()
+    if request.method == 'POST':
+        faces = get_faces(str(photo.file))
+        # set_faces(request, photo_id)
+        return render(request, 'photo.html', {'photo': photo, 'faces': faces})
+    else:
+        return render(request, 'photo.html', {'photo': photo})
 
 
 @login_required
