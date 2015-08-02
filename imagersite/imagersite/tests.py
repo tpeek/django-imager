@@ -195,9 +195,42 @@ class ProfileTest(TestCase):
     def test_check_links(self):
         response = self.client.get('/profile/')
         self.assertIn('href="/images/library/"', response.content)
+        self.assertIn('/profile/edit/', response.content)
 
     def test_profile_after_user_login(self):
         self.assertEqual(self.login.wsgi_request.path, '/profile/')
+
+
+class EditProfile(TestCase):
+    def setUp(self):
+        self.client = Client()
+        # Fake data
+        self.username = fake.user_name()
+        self.password = fake.password()
+        self.email = fake.email()
+        # Create user
+        self.user = User.objects.create_user(username=self.username,
+            password=self.password, email=self.email)
+        self.login = self.client.post('/login/', {'username': self.username,
+            'password': self.password}, follow=True)
+
+    def test_has_form(self):
+        response = self.client.get('/profile/edit/')
+        self.assertTrue(response.context['user_form'])
+        self.assertTrue(response.context['profile_form'])
+        self.assertEqual(response.status_code, 200)
+
+    def test_profile_edit_has_populated_data(self):
+        response = self.client.get('/profile/edit/')
+        self.assertIn(self.username, response.content)
+        self.assertIn(self.email, response.content)
+
+    def test_profile_post_edit_data(self):
+        fields = dict(nickname=fake.name(), email=fake.email(),
+            camera=fake.sentence(), address=fake.address(),
+            website_url=fake.url(), photography_type='A')
+        response = self.client.post('/profile/edit/', data=fields)
+        self.assertEqual(response.status_code, 200)
 
 
 class LibraryPage(TestCase):
@@ -527,3 +560,63 @@ class AlbumEdit(TestCase):
         response = self.client.post('/images/albums/{}/edit/'.format(
                                     self.album.id), data=fields)
         self.assertEqual(response.status_code, 200)
+
+
+class AccessTest(TestCase):
+    def setUp(self):
+        # Setting up for user #1 who has private photos and album
+        self.client1 = Client()
+        self.username1 = fake.user_name()
+        self.password1 = fake.password()
+        self.email1 = fake.email()
+        self.user1 = User.objects.create_user(username=self.username1,
+            password=self.password1, email=self.email1)
+        # self.login1 = self.client.post('/login/', {'username': self.username1,
+        #     'password': self.password1}, follow=True)
+        self.photo1 = PhotoFactory.create(owner=self.user1, privacy='Private',
+            file=os.path.join(settings.MEDIA_ROOT, 'amoosing.jpg'))
+        self.photo2 = PhotoFactory.create(owner=self.user1, privacy='Private',
+            file=os.path.join(settings.MEDIA_ROOT, 'googlephoto.jpg'))
+        self.photo1.save()
+        self.photo2.save()
+        self.album = AlbumFactory.create(owner=self.user1, cover=self.photo1,
+            privacy="Private")
+        self.album.save()
+        self.album.photos = [self.photo1, self.photo2]
+        # Setting up for user #2 who has no photos
+        self.client2 = Client()
+        self.username2 = fake.user_name()
+        self.password2 = fake.password()
+        self.email2 = fake.email()
+        self.user2 = User.objects.create_user(username=self.username2,
+            password=self.password2, email=self.email2)
+        self.login2 = self.client2.post('/login/', {'username': self.username2,
+            'password': self.password2}, follow=True)
+        # self.photo1_2 = PhotoFactory.create(owner=self.user2, privacy='Private',
+        #     file=os.path.join(settings.MEDIA_ROOT, 'amoosing.jpg'))
+        # self.photo2_2 = PhotoFactory.create(owner=self.user2, privacy='Private',
+        #     file=os.path.join(settings.MEDIA_ROOT, 'googlephoto.jpg'))
+        # self.photo1_2.save()
+        # self.photo2_2.save()
+
+    def test_photo_access(self):
+        response1 = self.client2.get('/images/photos/{}/'.format(
+            self.photo1.id), follow=True)
+        response2 = self.client2.get('/images/photos/{}/'.format(
+            self.photo2.id), follow=True)
+        response3 = self.client2.get('/images/photos/{}/edit/'.format(
+            self.photo1.id), follow=True)
+        response4 = self.client2.get('/images/photos/{}/edit/'.format(
+            self.photo2.id), follow=True)
+        self.assertEqual(response1.status_code, 403)
+        self.assertEqual(response2.status_code, 403)
+        self.assertEqual(response3.status_code, 403)
+        self.assertEqual(response4.status_code, 403)
+
+    def test_album_access(self):
+        response1 = self.client2.get(
+            '/images/albums/{}/'.format(self.album.id))
+        response2 = self.client2.get(
+            '/images/albums/{}/edit/'.format(self.album.id))
+        self.assertEqual(response1.status_code, 403)
+        self.assertEqual(response2.status_code, 403)
