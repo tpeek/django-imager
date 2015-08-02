@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+
+<form action="{% url 'edit_album' album_id %}" method="post">
+    {% csrf_token %}
+    {{ form }}
+    <input type="submit" value="Save"/>
+</form>
+
+{% endblock %}

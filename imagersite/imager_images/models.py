@@ -14,11 +14,11 @@ class Photo(models.Model):
     file = models.ImageField(upload_to='photo_files/%Y-%m-%d')
     owner = models.ForeignKey(User, null=False, related_name='photos')
     title = models.CharField(max_length=128)
-    description = models.TextField()
+    description = models.TextField(blank=True)
     date_uploaded = models.DateTimeField(default=timezone.now)
     date_modified = models.DateTimeField(default=timezone.now)
     date_published = models.DateTimeField(default=timezone.now)
-    privacy = models.CharField(max_length=64, choices=PRIVACY)
+    privacy = models.CharField(max_length=7, choices=PRIVACY, default='Public')
 
     def __str__(self):
         return self.title
@@ -27,14 +27,14 @@ class Photo(models.Model):
 @python_2_unicode_compatible
 class Album(models.Model):
     photos = models.ManyToManyField(Photo, related_name='photos')
-    cover = models.ForeignKey(Photo, related_name='cover', null=True)
+    cover = models.ForeignKey(Photo, related_name='cover', blank=True, null=True)
     owner = models.ForeignKey(User, null=False, related_name='albums')
     title = models.CharField(max_length=128)
-    description = models.TextField()
+    description = models.TextField(blank=True)
     date_uploaded = models.DateTimeField(default=timezone.now)
     date_modified = models.DateTimeField(default=timezone.now)
     date_published = models.DateTimeField(default=timezone.now)
-    privacy = models.CharField(max_length=64, choices=PRIVACY)
+    privacy = models.CharField(max_length=7, choices=PRIVACY, default='Public')
 
     def __str__(self):
         return self.title

@@ -3,6 +3,7 @@
 
 <body>
 <h1>{{ album.title }}</h1>
+<a href="{% url 'edit_album' album.id %}">Edit</a>
     <div class="img-responsive"><br><br>
     <h6 class='text-center'>Uploaded on {{ album.date_uploaded }} -- {{album.privacy }}</h6>
     <pre class='text-center'>{{ album.description }}</pre>
@@ -14,6 +15,7 @@
         <a href='/images/photos/{{ photo.id }}'><img style='box-shadow: 10px 15px 15px; width: auto; height: 160px;' class="thumbnail" src="{{ MEDIA_URL }}{{ photo.file }}"></a>
     </div>
     {% endfor %}
+
 </body>
 
 {% endblock %}

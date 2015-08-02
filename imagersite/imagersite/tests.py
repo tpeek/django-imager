@@ -1,14 +1,13 @@
 from django.test import Client, TestCase
 from django.contrib.auth.models import User
 from imager_images.models import Photo, Album
-from django.template import Template, Context
-# from imager_profile.models import User
 import factory
 from faker import Factory as FakeFaker
 from django.conf import settings
 import os
 from django.core import mail
 import re
+
 
 fake = FakeFaker.create()
 
@@ -35,8 +34,8 @@ class UserFactory(factory.Factory):
     email = factory.LazyAttribute(lambda a: '{}.{}@example.com'.format(
                                   a.first_name, a.last_name).lower())
     username = factory.LazyAttribute(lambda a: '{}{}{}{}'.format(
-                                     a.last_name[:1], a.first_name[1:],
-                                     a.first_name[:1], a.last_name[1:]).lower())
+        a.last_name[:1], a.first_name[1:],
+        a.first_name[:1], a.last_name[1:]).lower())
 
 
 class HomeView(TestCase):
@@ -132,223 +131,53 @@ class RegisterUser(TestCase):
         self.assertIn(self.username, logginin.content)
 
 
-class ProfileTest(TestCase):
-    """Tests for Profile view"""
+class AccessTest(TestCase):
     def setUp(self):
-        """Make a User no photos"""
-        self.client = Client()
-        # Fake data
-        self.username = fake.user_name()
-        self.password = fake.password()
-        self.email = fake.email()
-        # Create user
-        self.user = User.objects.create_user(username=self.username,
-            password=self.password, email=self.email)
-        self.login = self.client.post('/login/', {'username': self.username,
-            'password': self.password}, follow=True)
-
-    def test_count_no_photos(self):
-        viewprof = self.client.get('/profile/')
-        self.assertIn('>0</', viewprof.content)
-        # Should do this check; a non logged in response could potentially
-        # also display zero photos
-        self.assertIn(self.username, viewprof.content)
-
-    def test_count_photos_no_albums(self):
-        viewprof = self.client.get('/profile/')
-         # Add a couple photos to the user we created
-        photo1 = PhotoFactory.create(owner=self.user, privacy='Public',
+        # Setting up for user #1 who has private photos and album
+        self.client1 = Client()
+        self.username1 = fake.user_name()
+        self.password1 = fake.password()
+        self.email1 = fake.email()
+        self.user1 = User.objects.create_user(username=self.username1,
+            password=self.password1, email=self.email1)
+        self.photo1 = PhotoFactory.create(owner=self.user1, privacy='Private',
             file=os.path.join(settings.MEDIA_ROOT, 'amoosing.jpg'))
-        photo2 = PhotoFactory.create(owner=self.user, privacy='Public',
-            file=os.path.join(settings.MEDIA_ROOT, 'googlephoto.jpg'))
-        photo1.save()
-        photo2.save()
-        response = self.client.get('/profile/')
-
-        # Number of photos
-        self.assertIn('>2</', response.content)
-        # Number of albums
-        self.assertIn('>0</', response.content)
-
-    def test_count_photos_one_albums(self):
-        viewprof = self.client.get('/profile/')
-
-        # Add a couple photos to the user we created
-        photo1 = PhotoFactory.create(owner=self.user, privacy='Public',
-            file=os.path.join(settings.MEDIA_ROOT, 'amoosing.jpg'))
-        photo2 = PhotoFactory.create(owner=self.user, privacy='Public',
-            file=os.path.join(settings.MEDIA_ROOT, 'googlephoto.jpg'))
-        photo1.save()
-        photo2.save()
-        album = AlbumFactory.create(owner=self.user, cover=photo1)
-        album.save()
-        album.photos = [photo1, photo2]
-        response = self.client.get('/profile/')
-
-        # Number of photos
-        self.assertIn('>2</', response.content)
-        # Number of albums
-        self.assertIn('>1</', response.content)
-
-    def test_check_links(self):
-        response = self.client.get('/profile/')
-        self.assertIn('href="/images/library/"', response.content)
-
-    def test_profile_after_user_login(self):
-        self.assertEqual(self.login.wsgi_request.path, '/profile/')
-
-
-class LibraryPage(TestCase):
-    """Tests for Library view"""
-    def setUp(self):
-        """Make a User no photos"""
-        self.client = Client()
-        # Fake data
-        self.username = fake.user_name()
-        self.password = fake.password()
-        self.email = fake.email()
-        # Create user
-        self.user = User.objects.create_user(username=self.username,
-            password=self.password, email=self.email)
-        self.login = self.client.post('/login/', {'username': self.username,
-            'password': self.password}, follow=True)
-
-    def test_thumbnails_for_album_with_null_cover(self):
-        # Add photos to album
-        photo1 = PhotoFactory.create(owner=self.user, privacy='Public',
-            file=os.path.join(settings.MEDIA_ROOT, 'amoosing.jpg'))
-        photo2 = PhotoFactory.create(owner=self.user, privacy='Public',
-            file=os.path.join(settings.MEDIA_ROOT, 'googlephoto.jpg'))
-        photo1.save()
-        photo2.save()
-        album = AlbumFactory.create(owner=self.user)
-        album.save()
-        album.photos = [photo1, photo2]
-        response = self.client.get('/images/library/')
-        # Getting the html tag content for thumbnail
-        atemp = Template('src="{{ MEDIA_URL }}seattle.jpg')
-        srclink = atemp.render(Context({'MEDIA_URL': settings.MEDIA_URL,
-            'album': album}))
-        # Assert that thumbnail exists as src attribute
-        self.assertIn(srclink, response.content)
-
-    def test_thumbnails_for_all_albums_user_defined(self):
-        # Add photos to album
-        photo1 = PhotoFactory.create(owner=self.user, privacy='Public',
-            file=os.path.join(settings.MEDIA_ROOT, 'amoosing.jpg'))
-        photo2 = PhotoFactory.create(owner=self.user, privacy='Public',
-            file=os.path.join(settings.MEDIA_ROOT, 'googlephoto.jpg'))
-        photo1.save()
-        photo2.save()
-        album = AlbumFactory.create(owner=self.user, cover=photo1)
-        album.save()
-        album.photos = [photo1, photo2]
-        response = self.client.get('/images/library/')
-        # Getting the html tag content for thumbnail
-        atemp = Template('src="{{ MEDIA_URL }}{{ album.cover.file }}"')
-        srclink = atemp.render(Context({'MEDIA_URL': settings.MEDIA_URL,
-            'album': album}))
-        # Assert that thumbnail exists as src attribute
-        self.assertIn(srclink, response.content)
-
-    def test_titles_for_all_albums_user_defined(self):
-        # Add photos to album
-        photo1 = PhotoFactory.create(owner=self.user, privacy='Public',
-            file=os.path.join(settings.MEDIA_ROOT, 'amoosing.jpg'))
-        photo2 = PhotoFactory.create(owner=self.user, privacy='Public',
-            file=os.path.join(settings.MEDIA_ROOT, 'googlephoto.jpg'))
-        photo1.save()
-        photo2.save()
-        album = AlbumFactory.create(owner=self.user, cover=photo1)
-        album.save()
-        album.photos = [photo1, photo2]
-        response = self.client.get('/images/library/')
-        # Getting the html tag content for thumbnail
-        atemp = Template("{{ album.title }}")
-        atitle = atemp.render(Context({'album': album}))
-        # Assert that thumbnail exists as src attribute
-        self.assertIn(atitle, response.content)
-
-    def test_library_url(self):
-        response = self.client.get('/images/library/')
-        self.assertEqual('/images/library/', response.wsgi_request.path)
-
-
-class PhotoView(TestCase):
-    """Tests for Photo view"""
-    def setUp(self):
-        self.client = Client()
-        # Fake data
-        self.username = fake.user_name()
-        self.password = fake.password()
-        self.email = fake.email()
-        # Create user
-        self.user = User.objects.create_user(username=self.username,
-            password=self.password, email=self.email)
-        self.login = self.client.post('/login/', {'username': self.username,
-            'password': self.password}, follow=True)
-        # Make photos
-        self.photo1 = PhotoFactory.create(owner=self.user, privacy='Public',
-            file=os.path.join(settings.MEDIA_ROOT, 'amoosing.jpg'))
-        self.photo2 = PhotoFactory.create(owner=self.user, privacy='Public',
+        self.photo2 = PhotoFactory.create(owner=self.user1, privacy='Private',
             file=os.path.join(settings.MEDIA_ROOT, 'googlephoto.jpg'))
         self.photo1.save()
         self.photo2.save()
-        self.response1 = self.client.get('/images/photos/' +
-                                    str(self.photo1.id) +'/')
-        self.response2 = self.client.get('/images/photos/' +
-                                    str(self.photo2.id) +'/')
-
-    def test_check_photo_url_exists(self):
-        self.assertEqual(self.response1.status_code, 200)
-        self.assertEqual(self.response2.status_code, 200)
-
-    def test_photo_displayed(self):
-        # Getting the html tag content for thumbnail
-        atemp = Template('src="{{ MEDIA_URL }}{{ photo.file }}"')
-        srclink1 = atemp.render(Context({'MEDIA_URL': settings.MEDIA_URL,
-            'photo': self.photo1}))
-        srclink2 = atemp.render(Context({'MEDIA_URL': settings.MEDIA_URL,
-            'photo': self.photo2}))
-        self.assertIn(srclink1, self.response1.content)
-        self.assertIn(srclink2, self.response2.content)
-
-
-class AlbumView(TestCase):
-    """Tests for Album view"""
-    def setUp(self):
-        self.client = Client()
-        # Fake data
-        self.username = fake.user_name()
-        self.password = fake.password()
-        self.email = fake.email()
-        # Create user
-        self.user = User.objects.create_user(username=self.username,
-            password=self.password, email=self.email)
-        self.login = self.client.post('/login/', {'username': self.username,
-            'password': self.password}, follow=True)
-        # Make photos
-        self.photo1 = PhotoFactory.create(owner=self.user, privacy='Public',
-            file=os.path.join(settings.MEDIA_ROOT, 'amoosing.jpg'))
-        self.photo2 = PhotoFactory.create(owner=self.user, privacy='Public',
-            file=os.path.join(settings.MEDIA_ROOT, 'googlephoto.jpg'))
-        self.photo1.save()
-        self.photo2.save()
-        self.album = AlbumFactory.create(owner=self.user, cover=self.photo1)
+        self.album = AlbumFactory.create(owner=self.user1, cover=self.photo1,
+            privacy="Private")
         self.album.save()
         self.album.photos = [self.photo1, self.photo2]
-        self.response = self.client.get('/images/albums/' +
-                                        str(self.album.id) + '/')
+        # Setting up for user #2 who has no photos
+        self.client2 = Client()
+        self.username2 = fake.user_name()
+        self.password2 = fake.password()
+        self.email2 = fake.email()
+        self.user2 = User.objects.create_user(username=self.username2,
+            password=self.password2, email=self.email2)
+        self.login2 = self.client2.post('/login/', {'username': self.username2,
+            'password': self.password2}, follow=True)
 
-    def test_photo_view_url_exists(self):
-        self.assertEqual(self.response.status_code, 200)
+    def test_photo_access(self):
+        response1 = self.client2.get('/images/photos/{}/'.format(
+            self.photo1.id), follow=True)
+        response2 = self.client2.get('/images/photos/{}/'.format(
+            self.photo2.id), follow=True)
+        response3 = self.client2.get('/images/photos/{}/edit/'.format(
+            self.photo1.id), follow=True)
+        response4 = self.client2.get('/images/photos/{}/edit/'.format(
+            self.photo2.id), follow=True)
+        self.assertEqual(response1.status_code, 403)
+        self.assertEqual(response2.status_code, 403)
+        self.assertEqual(response3.status_code, 403)
+        self.assertEqual(response4.status_code, 403)
 
-    def test_photos_displayed(self):
-        # Getting the html tag content for thumbnails
-        atemp = Template('src="{{ MEDIA_URL }}{{ photo.file }}"')
-        srclink1 = atemp.render(Context({'MEDIA_URL': settings.MEDIA_URL,
-            'photo': self.photo1}))
-        srclink2 = atemp.render(Context({'MEDIA_URL': settings.MEDIA_URL,
-            'photo': self.photo2}))
-        self.assertIn(srclink1, self.response.content)
-        self.assertIn(srclink2, self.response.content)
+    def test_album_access(self):
+        response1 = self.client2.get(
+            '/images/albums/{}/'.format(self.album.id))
+        response2 = self.client2.get(
+            '/images/albums/{}/edit/'.format(self.album.id))
+        self.assertEqual(response1.status_code, 403)
+        self.assertEqual(response2.status_code, 403)
