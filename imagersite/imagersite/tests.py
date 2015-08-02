@@ -281,12 +281,28 @@ class LibraryPage(TestCase):
         # No photos this fct; add buttons still present
         self.assertIn('/images/photos/add/', response.content)
         self.assertIn('/images/albums/add/', response.content)
-        # No photos means edit paths not present
-        self.assertNotIn('/images/photos/edit/', response.content)
-        self.assertNotIn('/images/albums/edit/', response.content)
 
-
-
+    def test_library_links_to_add_edit_views_with_photos_albums(self):
+        """Check that the library page has a link to add photo/album as
+        well as edit photo/album when these exist"""
+        # Add photos to album
+        photo1 = PhotoFactory.create(owner=self.user, privacy='Public',
+            file=os.path.join(settings.MEDIA_ROOT, 'amoosing.jpg'))
+        photo2 = PhotoFactory.create(owner=self.user, privacy='Public',
+            file=os.path.join(settings.MEDIA_ROOT, 'googlephoto.jpg'))
+        photo1.save()
+        photo2.save()
+        album = AlbumFactory.create(owner=self.user, cover=photo1)
+        album.save()
+        album.photos = [photo1, photo2]
+        # Get response and test
+        response = self.client.get('/images/library/')
+        self.assertIn('/images/photos/add/', response.content)
+        self.assertIn('/images/albums/add/', response.content)
+        self.assertIn('/images/photos/{}/edit/'.format(photo1.id),
+                      response.content)
+        self.assertIn('/images/albums/{}/edit/'.format(album.id),
+                      response.content)
 
 
 class PhotoView(TestCase):
