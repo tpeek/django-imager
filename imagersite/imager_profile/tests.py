@@ -153,4 +153,3 @@ class EditProfile(TestCase):
             website_url=fake.url(), photography_type='A')
         response = self.client.post('/profile/edit/', data=fields)
         self.assertEqual(response.status_code, 200)
-
