@@ -9,7 +9,7 @@
 You own one of the best cameras, a {{ user.profile.camera }}.
 {% endif %}<br>
 {% if user.profile.photography_type %}
-You specialize in {{ user.profile.photography_type }} photography. That's one of the coolest!
+You specialize in {{ user.profile.get_photo_type }} photography. That's one of the coolest!
 {% endif %}</h4>
 </h1>
 <h3>Looks like you need to upload more photos!</h3>

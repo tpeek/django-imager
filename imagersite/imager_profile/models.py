@@ -32,6 +32,14 @@ class ImagerProfile(models.Model):
     def __str__(self):
         return self.nickname or self.user.get_full_name() or self.user.username
 
+    def get_photo_type(self):
+        types = {'H': 'Hobbist',
+                 'A': 'Abstract',
+                 'B': 'Black and White',
+                 'P': 'Panorama',
+                 'J': 'Journalism'}
+        return types[self.photography_type]
+
     @property
     def is_active(self):
         return self.user.is_active
