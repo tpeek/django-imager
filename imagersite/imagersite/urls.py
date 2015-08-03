@@ -11,4 +11,5 @@ urlpatterns = [
     url(r'^', include('imager_profile.urls')),
     url(r'^', include('imager_images.urls')),
     url(r'^', include('registration.backends.default.urls')),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+] + (static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) +
+     static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT))
