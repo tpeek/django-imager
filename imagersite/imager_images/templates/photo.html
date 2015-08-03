@@ -64,7 +64,7 @@
     <pre class='text-center'>{{ photo.description }}</pre>
     </div>
     <div id='photo-container'>
-        <img src="{{ MEDIA_URL }}{{ photo.file }}">
+        <img class="img-responsive" id="image" src="{{ MEDIA_URL }}{{ photo.file }}">
     </div>
     </div>
     <form action="{% url 'photo' photo.id %}" method="post">
@@ -73,12 +73,17 @@
 
     <script type="text/javascript">
          $(document).ready(function(){
+            var screenImage = $("#image");
+            var theImage = new Image();
+            theImage.src = screenImage.attr("src");
+            var originalW = theImage.width;
+            var originalH = theImage.height;
             FaceTagger.init({
                 container: "#photo-container",
                 labelUrl: "{{photo.id}}/faces",
                 csrf: "{{ csrf_token }}",
-                originalWidth: $("#photo-container img").width(),
-                originalHeight: $("#photo-container img").height(),
+                originalWidth: originalW,
+                originalHeight: originalH,
                 newWidth: $("#photo-container img").width(),
                 newHeight: $("#photo-container img").height()
             });
