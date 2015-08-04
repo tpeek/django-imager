@@ -5,6 +5,7 @@ from django.http import HttpResponseRedirect
 from django.core.exceptions import PermissionDenied
 from django.conf import settings
 from .forms import *
+from django.contrib.gis.db import models as geomodels
 
 import Algorithmia
 import base64
@@ -47,6 +48,7 @@ def photo_view(request, photo_id):
         # set_faces(request, photo_id)
         return render(request, 'photo.html', {'photo': photo, 'faces': faces})
     else:
+        print photo.location
         return render(request, 'photo.html', {'photo': photo})
 
 
@@ -91,9 +93,10 @@ def add_photo_view(request):
         picform2 = LocationForm(request.POST)
         if picform1.is_valid() and picform2.is_valid():
             new_photo = picform1.save(commit=False)
+            new_photo.location = picform2.cleaned_data['point']
             new_photo.owner = request.user
             new_photo.save()
-            # picform2.save()
+
             return HttpResponseRedirect('/images/library')
         else:
             return render(request, 'add_photo.html', {'form1': picform1.as_p,
