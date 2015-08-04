@@ -125,13 +125,13 @@ def edit_album_view(request, album_id):
             form.fields['photos'].queryset = Photo.objects.filter(owner=request.user)
             form.fields['cover'].queryset = Photo.objects.filter(owner=request.user)
             return render(request, 'edit_album.html',
-                         {'form': form.as_p, 'album_id': album_id})
+                          {'form': form.as_p, 'album_id': album_id})
     else:
         form = AlbumForm(instance=album)
         form.fields['photos'].queryset = Photo.objects.filter(owner=request.user)
         form.fields['cover'].queryset = Photo.objects.filter(owner=request.user)
         return render(request, 'edit_album.html',
-                     {'form': form.as_p, 'album_id': album_id})
+                      {'form': form.as_p, 'album_id': album_id})
 
 
 @login_required
@@ -140,16 +140,26 @@ def edit_photo_view(request, photo_id):
         raise PermissionDenied
     photo = Photo.objects.filter(id=photo_id).first()
     if request.method == 'POST':
-        form = PhotoForm(request.POST, request.FILES, instance=photo)
-        if form.is_valid():
-            new_photo = form.save(commit=False)
+        picform1 = PhotoForm(request.POST, request.FILES, instance=photo)
+        picform2 = LocationForm(request.POST)
+        if picform1.is_valid() and picform2.is_valid():
+            new_photo = picform1.save(commit=False)
             new_photo.owner = request.user
+            new_photo.location = picform2.cleaned_data['point']
             new_photo.save()
             return HttpResponseRedirect('/images/library')
         else:
             return render(request, 'edit_photo.html',
-                         {'form': form.as_p, 'album_id': photo_id})
+                          {'form1': picform1.as_p,
+                           'form2': picform2,
+                           'album_id': photo_id})
     else:
-        form = PhotoForm(instance=photo)
+        picform1 = PhotoForm(instance=photo)
+        picform2 = LocationForm()
+        print picform2.fields
+        picform2.fields['point'] = photo.location
         return render(request, 'edit_photo.html',
-                     {'form': form.as_p, 'photo_id': photo_id})
+                      {'form1': picform1.as_p,
+                       'form2': picform2,
+                       'photo_id': photo_id,
+                       'loc': photo.location})
