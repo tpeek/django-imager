@@ -27,4 +27,8 @@ class PhotoForm(ModelForm):
 #     pass
 
 class LocationForm(geoforms.Form):
+    class Meta:
+        model = Photo
+        fields = ['location']
+
     point = geoforms.gis.PointField()
