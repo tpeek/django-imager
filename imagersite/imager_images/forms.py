@@ -32,3 +32,12 @@ class LocationForm(geoforms.Form):
         fields = ['location']
 
     point = geoforms.gis.PointField()
+
+
+class ReadSingleLocationForm(geoforms.Form):
+    class Meta:
+        model = Photo
+        fields = ['location']
+        readonly_fields = ['location']
+
+    point = geoforms.gis.PointField()
