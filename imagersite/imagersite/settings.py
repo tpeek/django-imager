@@ -43,7 +43,9 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'sorl.thumbnail',
     'django.contrib.gis',
-    'floppyforms'
+    'floppyforms',
+    'leaflet',
+    'djgeojson',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -147,8 +149,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': 'django-imager',
-        'USER': 'admin',
-        'PASSWORD': 'pass',
+        'USER': 'jason',
         'HOST': '127.0.0.1',
         'PORT': '5432',
     }
