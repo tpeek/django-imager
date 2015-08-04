@@ -3,7 +3,8 @@
 
 <form action="{% url 'add_photo' %}" method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    {{ form }}
+    {{ form1 }}
+    {{ form2 }}
     <input type="submit" value="Add" />
 </form>
 

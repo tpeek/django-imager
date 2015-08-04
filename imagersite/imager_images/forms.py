@@ -1,5 +1,6 @@
 from .models import *
 from django.forms import ModelForm
+from django.contrib.gis import forms as geoforms
 
 
 class AlbumForm(ModelForm):
@@ -12,3 +13,12 @@ class PhotoForm(ModelForm):
     class Meta:
         model = Photo
         fields = ['title', 'description', 'privacy', 'file']
+
+
+class LocationForm(geoforms.Form):
+    class Meta:
+        model = Photo
+        fields = ['location']
+    point = geoforms.PointField()
+    # point = geoforms.PointField(widget=
+    #     geoforms.OSMWidget(attrs={'map_width': 800, 'map_height': 500}))
