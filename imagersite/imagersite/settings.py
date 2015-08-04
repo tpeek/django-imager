@@ -45,6 +45,7 @@ INSTALLED_APPS = (
     'django.contrib.gis',
     'floppyforms',
     'leaflet',
+    'djgeojson',
 )
 
 MIDDLEWARE_CLASSES = (
