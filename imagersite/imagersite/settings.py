@@ -143,7 +143,7 @@ BOOTSTRAP3 = {
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': 'django-imager',
         'USER': 'jason',
         'HOST': '127.0.0.1',

@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.gis.db import models as geomodels
 from django.contrib.auth.models import User
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils import timezone
@@ -28,7 +29,7 @@ class Photo(models.Model):
     date_modified = models.DateTimeField(default=timezone.now)
     date_published = models.DateTimeField(default=timezone.now)
     privacy = models.CharField(max_length=7, choices=PRIVACY, default='Public')
-    location = models.PointField()
+    location = geomodels.PointField(null=True, blank=True)
 
     def __str__(self):
         return self.title
