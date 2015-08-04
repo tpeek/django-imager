@@ -87,17 +87,22 @@ def add_album_view(request):
 @login_required
 def add_photo_view(request):
     if request.method == 'POST':
-        form = PhotoForm(request.POST, request.FILES)
-        if form.is_valid():
-            new_photo = form.save(commit=False)
+        picform1 = PhotoForm(request.POST, request.FILES)
+        picform2 = LocationForm(request.POST)
+        if picform1.is_valid() and picform2.is_valid():
+            new_photo = picform1.save(commit=False)
             new_photo.owner = request.user
             new_photo.save()
+            # picform2.save()
             return HttpResponseRedirect('/images/library')
         else:
-            return render(request, 'add_photo.html', {'form': form.as_p})
+            return render(request, 'add_photo.html', {'form1': picform1.as_p,
+                'form2': picform2})
     else:
-        form = PhotoForm()
-        return render(request, 'add_photo.html', {'form': form.as_p})
+        picform1 = PhotoForm()
+        picform2 = LocationForm()
+        return render(request, 'add_photo.html', {'form1': picform1.as_p,
+                'form2': picform2})
 
 
 @login_required
