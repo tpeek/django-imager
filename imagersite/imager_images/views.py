@@ -1,17 +1,56 @@
 from django.shortcuts import render
 from imager_images.models import Photo, Album
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.core.exceptions import PermissionDenied
+from django.conf import settings
 from .forms import *
+from djgeojson.serializers import Serializer as GeoJSONSerializer
+
+
+import Algorithmia
+import base64
+
+
+def get_faces(path):
+    with open(settings.MEDIA_ROOT + "/" + path, "rb") as img:
+        bimage = base64.b64encode(img.read())
+    Algorithmia.apiKey = "Simple simivSeptsC+ZsLks5ia0wXmFbC1"
+    result = Algorithmia.algo('/ANaimi/FaceDetection').pipe(bimage)
+    faces = []
+    for rect in result:
+        face = Face()
+        face.name = "Petter Rabbit"
+        face.x = rect['x']
+        face.y = rect['y']
+        face.width = rect['width']
+        face.height = rect['height']
+        faces.append(face)
+        for face in faces:
+            face.save()
+    return faces
+
+
+def set_faces(request, photo_id):
+    photo = Photo.objects.get(pk=photo_id)
+    face_id = request.POST.get('photo_id', '0')
+    face = Face.objects.get(id=face_id)
+    face.name = Face.objects.get('name', 'Unknown')
+    face.save()
 
 
 @login_required
 def photo_view(request, photo_id):
     if request.user != Photo.objects.filter(pk=photo_id).first().owner:
         raise PermissionDenied
-    photo = Photo.objects.filter(id=photo_id).first()
-    return render(request, 'photo.html', {'photo': photo})
+    photo = Photo.objects.filter(pk=photo_id).first()
+    if request.method == 'POST':
+        faces = get_faces(str(photo.file))
+        # set_faces(request, photo_id)
+        return render(request, 'photo.html', {'photo': photo, 'faces': faces})
+    else:
+        print photo.geom
+        return render(request, 'photo.html', {'photo': photo})
 
 
 @login_required
@@ -51,17 +90,23 @@ def add_album_view(request):
 @login_required
 def add_photo_view(request):
     if request.method == 'POST':
-        form = PhotoForm(request.POST, request.FILES)
-        if form.is_valid():
-            new_photo = form.save(commit=False)
+        picform1 = PhotoForm(request.POST, request.FILES)
+        picform2 = LocationForm(request.POST)
+        if picform1.is_valid() and picform2.is_valid():
+            new_photo = picform1.save(commit=False)
+            new_photo.geom = picform2.cleaned_data['point']
             new_photo.owner = request.user
             new_photo.save()
+
             return HttpResponseRedirect('/images/library')
         else:
-            return render(request, 'add_photo.html', {'form': form.as_p})
+            return render(request, 'add_photo.html', {'form1': picform1.as_p,
+                'form2': picform2})
     else:
-        form = PhotoForm()
-        return render(request, 'add_photo.html', {'form': form.as_p})
+        picform1 = PhotoForm()
+        picform2 = LocationForm()
+        return render(request, 'add_photo.html', {'form1': picform1.as_p,
+                'form2': picform2})
 
 
 @login_required
@@ -81,13 +126,13 @@ def edit_album_view(request, album_id):
             form.fields['photos'].queryset = Photo.objects.filter(owner=request.user)
             form.fields['cover'].queryset = Photo.objects.filter(owner=request.user)
             return render(request, 'edit_album.html',
-                         {'form': form.as_p, 'album_id': album_id})
+                          {'form': form.as_p, 'album_id': album_id})
     else:
         form = AlbumForm(instance=album)
         form.fields['photos'].queryset = Photo.objects.filter(owner=request.user)
         form.fields['cover'].queryset = Photo.objects.filter(owner=request.user)
         return render(request, 'edit_album.html',
-                     {'form': form.as_p, 'album_id': album_id})
+                      {'form': form.as_p, 'album_id': album_id})
 
 
 @login_required
@@ -96,16 +141,54 @@ def edit_photo_view(request, photo_id):
         raise PermissionDenied
     photo = Photo.objects.filter(id=photo_id).first()
     if request.method == 'POST':
-        form = PhotoForm(request.POST, request.FILES, instance=photo)
-        if form.is_valid():
-            new_photo = form.save(commit=False)
+        picform1 = PhotoForm(request.POST, request.FILES, instance=photo)
+        picform2 = LocationForm(request.POST)
+        if picform1.is_valid() and picform2.is_valid():
+            new_photo = picform1.save(commit=False)
             new_photo.owner = request.user
+            new_photo.geom = picform2.cleaned_data['point']
             new_photo.save()
             return HttpResponseRedirect('/images/library')
         else:
             return render(request, 'edit_photo.html',
-                         {'form': form.as_p, 'album_id': photo_id})
+                          {'form1': picform1.as_p,
+                           'form2': picform2,
+                           'album_id': photo_id})
     else:
-        form = PhotoForm(instance=photo)
+        picform1 = PhotoForm(instance=photo)
+        picform2 = LocationForm()
+        # print picform2.fields
+        # picform2.fields['point'] = photo.geom
         return render(request, 'edit_photo.html',
-                     {'form': form.as_p, 'photo_id': photo_id})
+                      {'form1': picform1.as_p,
+                       'form2': picform2,
+                       'photo_id': photo_id,
+                       'loc': photo.geom})
+
+
+def p_geoview(request, photo_id):
+    """Geo data for photo"""
+    owner = Photo.objects.get(pk=photo_id).owner
+    privacy = Photo.objects.get(pk=photo_id).privacy
+
+    if (request.user != owner) and (privacy == 'Private'):
+        raise PermissionDenied
+    else:
+        photo_lst = Photo.objects.filter(pk=photo_id).all()
+        return HttpResponse(GeoJSONSerializer().serialize(
+            photo_lst, use_natural_keys=True, with_modelname=False,
+            properties=['geom']))
+
+
+def a_geoview(request, album_id):
+    """Geo data for album"""
+    owner = Album.objects.get(pk=album_id).owner
+    privacy = Album.objects.get(pk=album_id).privacy
+
+    if (request.user != owner) and (privacy == 'Private'):
+        raise PermissionDenied
+    else:
+        photo_lst = Album.objects.get(pk=album_id).photos.all()
+        return HttpResponse(GeoJSONSerializer().serialize(
+            photo_lst, use_natural_keys=True, with_modelname=False,
+            properties=['geom']))

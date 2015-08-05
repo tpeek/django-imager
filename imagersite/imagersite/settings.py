@@ -42,6 +42,10 @@ INSTALLED_APPS = (
     'registration',
     'django.contrib.sites',
     'sorl.thumbnail',
+    'django.contrib.gis',
+    'floppyforms',
+    'leaflet',
+    'djgeojson',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -126,7 +130,7 @@ BOOTSTRAP3 = {
     'success_css_class': 'has-success',
 
     # Renderers (only set these if you have studied the source and understand the inner workings)
-    'formset_renderers':{
+    'formset_renderers': {
         'default': 'bootstrap3.renderers.FormsetRenderer',
     },
     'form_renderers': {
@@ -143,8 +147,11 @@ BOOTSTRAP3 = {
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'NAME': 'django-imager',
+        'USER': 'jason',
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
     }
 }
 
@@ -167,7 +174,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
@@ -175,6 +182,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
 
 # Media file handling
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

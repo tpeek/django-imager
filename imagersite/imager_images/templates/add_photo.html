@@ -1,9 +1,28 @@
 {% extends "base.html" %}
+{% block head %}
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/openlayers/2.13.1/OpenLayers.js"></script>
+    {{ form2.media }}
+{% endblock %}
 {% block content %}
+
+    {% load staticfiles %}
+
+
+{% block map_options %}
+var map_options = {
+    maxExtend: new OpenLayers.Bounds(-20037508,-20037508,20037508,20037508),
+    maxResolution: 156543.0339,
+    numZoomLevels: 20,
+    units: 'm',
+    scrollable: false,
+};
+{% endblock %}
+
 
 <form action="{% url 'add_photo' %}" method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    {{ form }}
+    {{ form1 }}
+    {{ form2.as_p }}
     <input type="submit" value="Add" />
 </form>
 
