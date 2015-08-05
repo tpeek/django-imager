@@ -1,11 +1,12 @@
 from django.shortcuts import render
 from imager_images.models import Photo, Album
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.core.exceptions import PermissionDenied
 from django.conf import settings
 from .forms import *
-from django.contrib.gis.db import models as geomodels
+from djgeojson.serializers import Serializer as GeoJSONSerializer
+
 
 import Algorithmia
 import base64
@@ -156,10 +157,38 @@ def edit_photo_view(request, photo_id):
     else:
         picform1 = PhotoForm(instance=photo)
         picform2 = LocationForm()
-        print picform2.fields
-        picform2.fields['point'] = photo.geom
+        # print picform2.fields
+        # picform2.fields['point'] = photo.geom
         return render(request, 'edit_photo.html',
                       {'form1': picform1.as_p,
                        'form2': picform2,
                        'photo_id': photo_id,
                        'loc': photo.geom})
+
+
+def p_geoview(request, photo_id):
+    """Geo data for photo"""
+    owner = Photo.objects.get(pk=photo_id).owner
+    privacy = Photo.objects.get(pk=photo_id).privacy
+
+    if (request.user != owner) and (privacy == 'Private'):
+        raise PermissionDenied
+    else:
+        photo_lst = Photo.objects.filter(pk=photo_id).all()
+        return HttpResponse(GeoJSONSerializer().serialize(
+            photo_lst, use_natural_keys=True, with_modelname=False,
+            properties=['geom']))
+
+
+def a_geoview(request, album_id):
+    """Geo data for album"""
+    owner = Album.objects.get(pk=album_id).owner
+    privacy = Album.objects.get(pk=album_id).privacy
+
+    if (request.user != owner) and (privacy == 'Private'):
+        raise PermissionDenied
+    else:
+        photo_lst = Album.objects.get(pk=album_id).photos.all()
+        return HttpResponse(GeoJSONSerializer().serialize(
+            photo_lst, use_natural_keys=True, with_modelname=False,
+            properties=['geom']))
