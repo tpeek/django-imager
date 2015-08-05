@@ -319,7 +319,7 @@ class PhotoAdd(TestCase):
 
     def test_photo_has_form(self):
         response = self.client.get('/images/photos/add/')
-        self.assertTrue(response.context['form'])
+        self.assertTrue(response.context['form1'])
 
     def test_photo_form_has_all_fields(self):
         fields = dict(title=fake.sentence(), description=fake.paragraph(),
@@ -352,7 +352,7 @@ class PhotoEdit(TestCase):
     def test_photo_edit_has_form(self):
         response = self.client.get(
             '/images/photos/{}/edit/'.format(self.photo1.id))
-        self.assertTrue(response.context['form'])
+        self.assertTrue(response.context['form1'])
         self.assertEqual(response.status_code, 200)
 
     def test_photo_edit_has_populated_data(self):
