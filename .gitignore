@@ -1,5 +1,5 @@
 # Project specific
-media/photo_files/
+media/
 !media/test/*
 *.sqlite3
 
