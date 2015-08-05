@@ -149,7 +149,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': 'django-imager',
-        'USER': 'jason',
+        'USER': 'admin',
+        'PASSWORD': 'pass',
         'HOST': '127.0.0.1',
         'PORT': '5432',
     }
