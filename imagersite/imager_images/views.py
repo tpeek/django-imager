@@ -49,7 +49,6 @@ def photo_view(request, photo_id):
         # set_faces(request, photo_id)
         return render(request, 'photo.html', {'photo': photo, 'faces': faces})
     else:
-        print photo.geom
         return render(request, 'photo.html', {'photo': photo})
 
 
@@ -157,7 +156,6 @@ def edit_photo_view(request, photo_id):
     else:
         picform1 = PhotoForm(instance=photo)
         picform2 = LocationForm()
-        # print picform2.fields
         # picform2.fields['point'] = photo.geom
         return render(request, 'edit_photo.html',
                       {'form1': picform1.as_p,
