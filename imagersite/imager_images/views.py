@@ -166,15 +166,31 @@ def edit_photo_view(request, photo_id):
                        'loc': photo.geom})
 
 
-def geoview(request, photo_id):
-    if request.user != Photo.objects.filter(pk=photo_id).first().owner:
+def p_geoview(request, photo_id):
+    """Geo data for photo"""
+    owner = Photo.objects.get(pk=photo_id).owner
+    privacy = Photo.objects.get(pk=photo_id).privacy
+
+    if (request.user != owner) and (privacy == 'Private'):
         raise PermissionDenied
-   
+
     else:
         photo_lst = Photo.objects.filter(pk=photo_id).all()
         return HttpResponse(GeoJSONSerializer().serialize(
-            Photo.objects.all().filter(pk=photo_id), use_natural_keys=True, with_modelname=False, 
+            photo_lst, use_natural_keys=True, with_modelname=False,
             properties=['geom']))
-        # print photo.geom
-        # return render(request, 'photo.html', {'photo': photo})
 
+
+def a_geoview(request, album_id):
+    """Geo data for album"""
+    owner = Album.objects.get(pk=album_id).owner
+    privacy = Album.objects.get(pk=album_id).privacy
+
+    if (request.user != owner) and (privacy == 'Private'):
+        raise PermissionDenied
+
+    else:
+        photo_lst = Album.objects.get(pk=album_id).photos.all()
+        return HttpResponse(GeoJSONSerializer().serialize(
+            photo_lst, use_natural_keys=True, with_modelname=False,
+            properties=['geom']))
