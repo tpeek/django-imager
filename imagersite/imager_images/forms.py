@@ -18,7 +18,7 @@ class PhotoForm(ModelForm):
 # class LocationForm(geoforms.Form):
 #     class Meta:
 #         model = Photo
-#         fields = ['location']
+#         fields = ['geom']
 #     # point = geoforms.PointField()
 #     point = geoforms.PointField(widget=
 #         geoforms.OSMWidget(attrs={'map_width': 800, 'map_height': 500}))
@@ -29,7 +29,7 @@ class PhotoForm(ModelForm):
 class LocationForm(geoforms.Form):
     class Meta:
         model = Photo
-        fields = ['location']
+        fields = ['geom']
 
     point = geoforms.gis.PointField()
 
@@ -37,7 +37,7 @@ class LocationForm(geoforms.Form):
 class ReadSingleLocationForm(geoforms.Form):
     class Meta:
         model = Photo
-        fields = ['location']
-        readonly_fields = ['location']
+        fields = ['geom']
+        readonly_fields = ['geom']
 
     point = geoforms.gis.PointField()

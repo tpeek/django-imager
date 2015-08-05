@@ -48,7 +48,7 @@ def photo_view(request, photo_id):
         # set_faces(request, photo_id)
         return render(request, 'photo.html', {'photo': photo, 'faces': faces})
     else:
-        print photo.location
+        print photo.geom
         return render(request, 'photo.html', {'photo': photo})
 
 
@@ -93,7 +93,7 @@ def add_photo_view(request):
         picform2 = LocationForm(request.POST)
         if picform1.is_valid() and picform2.is_valid():
             new_photo = picform1.save(commit=False)
-            new_photo.location = picform2.cleaned_data['point']
+            new_photo.geom = picform2.cleaned_data['point']
             new_photo.owner = request.user
             new_photo.save()
 
@@ -145,7 +145,7 @@ def edit_photo_view(request, photo_id):
         if picform1.is_valid() and picform2.is_valid():
             new_photo = picform1.save(commit=False)
             new_photo.owner = request.user
-            new_photo.location = picform2.cleaned_data['point']
+            new_photo.geom = picform2.cleaned_data['point']
             new_photo.save()
             return HttpResponseRedirect('/images/library')
         else:
@@ -157,9 +157,12 @@ def edit_photo_view(request, photo_id):
         picform1 = PhotoForm(instance=photo)
         picform2 = LocationForm()
         print picform2.fields
-        picform2.fields['point'] = photo.location
+        picform2.fields['point'] = photo.geom
         return render(request, 'edit_photo.html',
                       {'form1': picform1.as_p,
                        'form2': picform2,
                        'photo_id': photo_id,
-                       'loc': photo.location})
+                       'loc': photo.geom})
+
+
+def geoview(request, photo_id)

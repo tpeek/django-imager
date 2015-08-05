@@ -29,7 +29,7 @@ class Photo(models.Model):
     date_modified = models.DateTimeField(default=timezone.now)
     date_published = models.DateTimeField(default=timezone.now)
     privacy = models.CharField(max_length=7, choices=PRIVACY, default='Public')
-    location = geomodels.PointField(null=True, blank=True)
+    geom = geomodels.PointField(null=True, blank=True)
 
     def __str__(self):
         return self.title
