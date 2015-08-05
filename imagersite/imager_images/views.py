@@ -1,11 +1,14 @@
 from django.shortcuts import render
 from imager_images.models import Photo, Album
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.core.exceptions import PermissionDenied
 from django.conf import settings
 from .forms import *
 from django.contrib.gis.db import models as geomodels
+from django.core.serializers import serialize
+from djgeojson.serializers import Serializer as GeoJSONSerializer
+
 
 import Algorithmia
 import base64
@@ -165,4 +168,15 @@ def edit_photo_view(request, photo_id):
                        'loc': photo.geom})
 
 
-def geoview(request, photo_id)
+def geoview(request, photo_id):
+    if request.user != Photo.objects.filter(pk=photo_id).first().owner:
+        raise PermissionDenied
+   
+    else:
+        photo_lst = Photo.objects.filter(pk=photo_id).all()
+        return HttpResponse(GeoJSONSerializer().serialize(
+            Photo.objects.all().filter(pk=photo_id), use_natural_keys=True, with_modelname=False, 
+            properties=['geom']))
+        # print photo.geom
+        # return render(request, 'photo.html', {'photo': photo})
+
