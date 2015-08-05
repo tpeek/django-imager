@@ -6,7 +6,7 @@ from django.contrib.gis import forms as geoforms
 class LocationForm(geoforms.Form):
     class Meta:
         model = Photo
-        fields = ['location']
+        fields = ['geom']
     point = geoforms.PointField(widget=
         geoforms.OSMWidget(attrs={'map_width': 800, 'map_height': 500}))
 
