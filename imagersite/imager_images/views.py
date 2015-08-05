@@ -5,8 +5,6 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.core.exceptions import PermissionDenied
 from django.conf import settings
 from .forms import *
-from django.contrib.gis.db import models as geomodels
-from django.core.serializers import serialize
 from djgeojson.serializers import Serializer as GeoJSONSerializer
 
 
@@ -159,8 +157,8 @@ def edit_photo_view(request, photo_id):
     else:
         picform1 = PhotoForm(instance=photo)
         picform2 = LocationForm()
-        print picform2.fields
-        picform2.fields['point'] = photo.geom
+        # print picform2.fields
+        # picform2.fields['point'] = photo.geom
         return render(request, 'edit_photo.html',
                       {'form1': picform1.as_p,
                        'form2': picform2,
