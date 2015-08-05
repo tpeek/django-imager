@@ -10,14 +10,15 @@
 {% block content %}
 
 <body>
+
 <h1>{{ album.title }}</h1>
 <a href="{% url 'edit_album' album.id %}">Edit</a>
     <div class="img-responsive"><br><br>
     <h6 class='text-center'>Uploaded on {{ album.date_uploaded }} -- {{album.privacy }}</h6>
     <pre class='text-center'>{{ album.description }}</pre>
 
-    {% leaflet_map "main" callback="main_map_init" %}
 
+    {% leaflet_map "main" callback="main_map_init" %}
     <script type="text/javascript">
         function main_map_init (map, options) {
 
@@ -32,7 +33,6 @@
 
 
     </div>
-
     {% for photo in album.photos.all %}
     <div class="col-lg-3 col-md-4 col-sm-5 col-xs-6"><br><br>
         <h4 class='text-center'>{{ photo.title }}</h4>
@@ -40,7 +40,5 @@
     </div>
     {% endfor %}
 
-
 </body>
-
 {% endblock %}

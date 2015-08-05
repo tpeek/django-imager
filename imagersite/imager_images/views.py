@@ -173,7 +173,6 @@ def p_geoview(request, photo_id):
 
     if (request.user != owner) and (privacy == 'Private'):
         raise PermissionDenied
-
     else:
         photo_lst = Photo.objects.filter(pk=photo_id).all()
         return HttpResponse(GeoJSONSerializer().serialize(
@@ -188,7 +187,6 @@ def a_geoview(request, album_id):
 
     if (request.user != owner) and (privacy == 'Private'):
         raise PermissionDenied
-
     else:
         photo_lst = Album.objects.get(pk=album_id).photos.all()
         return HttpResponse(GeoJSONSerializer().serialize(

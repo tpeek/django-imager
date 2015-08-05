@@ -1,9 +1,5 @@
 from django.conf.urls import url
 from .views import *
-from django.conf import settings
-from django.contrib.staticfiles import views
-from .models import Photo
-# from djgeojson.views import GeoJSONLayerView
 
 
 urlpatterns = [
