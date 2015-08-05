@@ -163,3 +163,6 @@ def edit_photo_view(request, photo_id):
                        'form2': picform2,
                        'photo_id': photo_id,
                        'loc': photo.geom})
+
+
+def geoview(request, photo_id)

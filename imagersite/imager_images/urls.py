@@ -3,7 +3,7 @@ from .views import *
 from django.conf import settings
 from django.contrib.staticfiles import views
 from .models import Photo
-from djgeojson.views import GeoJSONLayerView
+# from djgeojson.views import GeoJSONLayerView
 
 
 urlpatterns = [
@@ -14,5 +14,5 @@ urlpatterns = [
     url(r'^images/albums/add/$', add_album_view, name='add_album'),
     url(r'^images/albums/(?P<album_id>\d+)/edit/', edit_album_view, name='edit_album'),
     url(r'^images/photos/(?P<photo_id>\d+)/edit/', edit_photo_view, name='edit_photo'),
-    url(r'^data.geojson$', GeoJSONLayerView.as_view(model=Photo), name='data'),
+    url(r'^data.geojson$', geoview, name='data'),
 ]
