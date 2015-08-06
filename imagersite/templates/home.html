@@ -15,7 +15,7 @@
         {% if pic_url %}
         src="{{ MEDIA_URL }}{{ pic_url }}"
         {% else %}
-        src="{{ STATIC_URL }}demo.jpg"
+        src="{% static 'imager_images/demo.jpg' %}"
         {% endif %}
         >
     </div>
