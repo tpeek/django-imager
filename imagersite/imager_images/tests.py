@@ -14,13 +14,16 @@ fake = FakeFaker.create()
 class UserFactory(factory.Factory):
     class Meta:
         model = User
+
     first_name = fake.first_name()
     last_name = fake.last_name()
-    email = factory.LazyAttribute(lambda a: '{}.{}@example.com'.format(
-                                  a.first_name, a.last_name).lower())
-    username = factory.LazyAttribute(lambda a: '{}{}{}{}'.format(
-                                     a.last_name[:1], a.first_name[1:],
-                                     a.first_name[:1], a.last_name[1:]).lower())
+    email = factory.LazyAttribute(
+        lambda a: '{}.{}@example.com'.format(a.first_name, a.last_name).lower()
+        )
+    username = factory.LazyAttribute(
+        lambda a: '{}{}{}{}'.format(a.last_name[:1], a.first_name[1:],
+        a.first_name[:1], a.last_name[1:]).lower()
+        )
 
 
 class PhotoFactory(factory.Factory):
@@ -33,15 +36,12 @@ class AlbumFactory(factory.Factory):
         model = Album
 
 
-class PhotoTestCase(TestCase):
+class PhotoModelTestCase(TestCase):
+    """Create a photo owner and associate a generic photo"""
     def setUp(self):
-        owner = UserFactory.create()
-        owner.save()
-        self.photo1 = PhotoFactory.create(owner=owner)
-
-    def tearDown(self):
-        Photo.objects.all().delete()
-        User.objects.all().delete()
+        self.owner = UserFactory.create()
+        self.owner.save()
+        self.photo1 = PhotoFactory.create(owner=self.owner)
 
     def test_photo_exists(self):
         self.assertFalse(Photo.objects.all())
@@ -49,22 +49,18 @@ class PhotoTestCase(TestCase):
         self.assertTrue(Photo.objects.all())
 
     def test_photo_user(self):
-        self.assertTrue(self.photo1.owner)
+        self.assertEqual(self.photo1.owner, self.owner)
         self.assertFalse(self.photo1.owner is UserFactory.create())
 
 
-class AlbumTestCase1(TestCase):
+class AlbumModelTestCase1(TestCase):
+    """Create an owner, then an empty album, then add photos to album"""
     def setUp(self):
         owner = UserFactory.create()
         owner.save()
         cover = PhotoFactory.create(owner=owner)
         cover.save()
         self.album1 = AlbumFactory.create(owner=owner, cover=cover)
-
-    def tearDown(self):
-        Album.objects.all().delete()
-        Photo.objects.all().delete()
-        User.objects.all().delete()
 
     def test_album_exists(self):
         self.assertFalse(Album.objects.all())
@@ -74,7 +70,7 @@ class AlbumTestCase1(TestCase):
     def test_album_user(self):
         self.album1.save()
         self.assertTrue(self.album1.owner)
-        self.assertFalse(self.album1.owner is
+        self.assertFalse(self.album1.owner ==
                          UserFactory.create(username='Penelope'))
 
     def test_add_photos(self):
@@ -87,10 +83,13 @@ class AlbumTestCase1(TestCase):
         self.assertTrue(self.album1.photos.count() == 10)
 
 
-class AlbumTestCase2(TestCase):
+class AlbumModelTestCase2(TestCase):
     def setUp(self):
         owner1, owner2 = UserFactory.create(),\
             UserFactory.create(username='bob')
+        owners = (owner1, owner2)
+
+        for owner in owners:
         owner1.save()
         owner2.save()
         cover1 = PhotoFactory.create(owner=owner1)
