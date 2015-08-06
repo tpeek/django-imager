@@ -84,36 +84,30 @@ class AlbumModelTestCase1(TestCase):
 
 
 class AlbumModelTestCase2(TestCase):
+    """Create a user and associate pictures with that user; add these
+    public pictures to both this user and another's albums"""
     def setUp(self):
         owner1, owner2 = UserFactory.create(),\
             UserFactory.create(username='bob')
-        owners = (owner1, owner2)
-
-        for owner in owners:
-        owner1.save()
-        owner2.save()
-        cover1 = PhotoFactory.create(owner=owner1)
-        cover2 = PhotoFactory.create(owner=owner2)
-        cover1.save()
-        cover2.save()
-        self.album1 = AlbumFactory.create(owner=owner1, cover=cover1)
-        self.album2 = AlbumFactory.create(owner=owner2, cover=cover2)
-        self.album1.save()
-        self.album2.save()
+        self.owners = (owner1, owner2)
+        self.albums = []
+        for owner in self.owners:
+            owner.save()
+            cover = PhotoFactory.create(owner=owner)
+            cover.save()
+            album = AlbumFactory.create(owner=owner, cover=cover)
+            album.save()
+            self.albums.append(album)
         self.photos = [
-            PhotoFactory.create(owner=self.album1.owner) for x in range(10)]
+            PhotoFactory.create(owner=self.albums[0].owner) for x in range(10)]
         for photo in self.photos:
             photo.save()
 
-    def tearDown(self):
-        Album.objects.all().delete()
-        Photo.objects.all().delete()
-        User.objects.all().delete()
-
     def test_many_to_many(self):
-        self.album1.photos.add(*self.photos)
-        self.album2.photos.add(*self.photos)
-        for p1, p2 in zip(self.album1.photos.all(), self.album2.photos.all()):
+        self.albums[0].photos.add(*self.photos)
+        self.albums[1].photos.add(*self.photos)
+        for p1, p2 in zip(self.albums[0].photos.all(),
+                          self.albums[1].photos.all()):
             self.assertEqual(p1, p2)
 
 

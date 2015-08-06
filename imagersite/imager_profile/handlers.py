@@ -36,10 +36,7 @@ def rm_user_profile(sender, **kwargs):
     instance = kwargs.get('instance')
     if not instance:
         return
-    try:
-        instance.user.delete()
-    except:
-        pass
+    instance.user.delete()
 
 
 @receiver(post_delete, sender=User)

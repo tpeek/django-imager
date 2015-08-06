@@ -7,6 +7,7 @@ from imager_images.models import Photo, Album
 from faker import Factory as FakeFaker
 from django.conf import settings
 import os
+from django.db import IntegrityError
 
 fake = FakeFaker.create()
 
@@ -30,6 +31,11 @@ class PhotoFactory(factory.Factory):
     description = fake.paragraph()
 
 
+class ImagerProfileFactory(factory.Factory):
+    class Meta:
+        model = ImagerProfile
+
+
 class AlbumFactory(factory.Factory):
     class Meta:
         model = Album
@@ -37,7 +43,7 @@ class AlbumFactory(factory.Factory):
     description = fake.paragraph()
 
 
-class ProfileTestCase1(TestCase):
+class ProfileModelTestCase1(TestCase):
     def setUp(self):
         self.user = UserFactory.create(username='Penelope')
         self.user.set_password('secret')
@@ -46,8 +52,13 @@ class ProfileTestCase1(TestCase):
         self.assertTrue(ImagerProfile.objects.count() == 0)
         self.user.save()
         self.assertTrue(ImagerProfile.objects.count() == 1)
-        self.user.delete()
-        self.assertTrue(ImagerProfile.objects.count() == 0)
+
+    def test_user_made_and_destroyed_with_profile(self):
+        self.user.save()
+        self.assertTrue(User.objects.count() == 1)
+        profile = ImagerProfileFactory.create()
+        with self.assertRaises(IntegrityError):
+            profile.save()
 
     def test_profile_is_full_name(self):
         self.user.save()
