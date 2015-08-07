@@ -183,7 +183,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = os.environ['EMAIL_HOST_USER']
 EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
 EMAIL_PORT = 587
-if os.environ['EMAIL_BACKEND']:
+if os.environ.get('EMAIL_BACKEND', None):
     EMAIL_BACKEND = os.environ['EMAIL_BACKEND']
 
 # For django-registration-redux
