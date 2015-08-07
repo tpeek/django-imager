@@ -5,13 +5,13 @@
 <div class="container">
      {% for album in user.albums.all %}
         <div class="col-lg-3 col-md-4 col-sm-5 col-xs-6">
-        <h4 class='text-center'>{{ album.title }}</h4><a href="/images/albums/{{ album.id }}/edit/">Edit</a>
-        <a href='/images/albums/{{ album.id }}/'><img style='box-shadow: 10px 15px 15px; width: auto; height: 160px;' class="thumbnail"
+        <h4 class='text-center'>{{ album.title }}</h4><a href="{% url 'edit_album' album.id %}">Edit</a>
+        <a href='{% url 'album' album.id %}'>
 
         {% if album.cover.file %}
-          src="{{ MEDIA_URL }}{{ album.cover.file }}">
+          <img style='box-shadow: 10px 15px 15px; width: auto; height: 160px;' class="thumbnail" src="{{ MEDIA_URL }}{{ album.cover.file }}">
         {% else %}
-          src="{{ MEDIA_URL }}seattle.jpg">
+          <img style='box-shadow: 10px 15px 15px; width: auto; height: 160px;' class="thumbnail" src="{{ MEDIA_URL }}seattle.jpg">
         {% endif %}
         </a>
         </div>
@@ -25,8 +25,8 @@
 <div class="container">
     {% for photo in user.photos.all %}
     <div class="col-lg-3 col-md-4 col-sm-5 col-xs-6"><br><br>
-        <h4 class='text-center'>{{ photo.title }}</h4><a href="/images/photos/{{ photo.id }}/edit/">Edit</a>
-        <a href='/images/photos/{{ photo.id }}/'><img style='box-shadow: 10px 15px 15px; width: auto; height: 160px;' class="thumbnail" src="{{ MEDIA_URL }}{{ photo.file }}"></a>
+        <h4 class='text-center'>{{ photo.title }}</h4><a href="{% url 'edit_photo' photo.id %}">Edit</a>
+        <a href='{% url 'photo' photo.id %}'><img style='box-shadow: 10px 15px 15px; width: auto; height: 160px;' class="thumbnail" src="{{ MEDIA_URL }}{{ photo.file }}"></a>
     </div>
     {% endfor %}
     <div class="col-lg-3 col-md-4 col-sm-5 col-xs-6"><br><br>

@@ -6,7 +6,7 @@ from django.utils.encoding import python_2_unicode_compatible
 class ActiveProfileManager(models.Manager):
     def get_queryset(self):
         return super(ActiveProfileManager,
-                     self).get_queryset().filter(user_is_active=True)
+                     self).get_queryset().filter(user__is_active=True)
 
 
 @python_2_unicode_compatible
