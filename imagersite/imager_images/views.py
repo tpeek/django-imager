@@ -77,13 +77,10 @@ def add_album_view(request):
             new_album.save()
             form.save_m2m()
             return HttpResponseRedirect('/images/library')
-        else:
-            return render(request, 'add_album.html', {'form': form.as_p})
-    else:
-        form = AlbumForm()
-        form.fields['photos'].queryset = Photo.objects.filter(owner=request.user)
-        form.fields['cover'].queryset = Photo.objects.filter(owner=request.user)
-        return render(request, 'add_album.html', {'form': form.as_p})
+    form = AlbumForm()
+    form.fields['photos'].queryset = Photo.objects.filter(owner=request.user)
+    form.fields['cover'].queryset = Photo.objects.filter(owner=request.user)
+    return render(request, 'add_album.html', {'form': form.as_p})
 
 
 @login_required
