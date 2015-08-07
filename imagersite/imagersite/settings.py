@@ -193,4 +193,4 @@ LOGIN_URL = '/login/'
 
 # Added per
 # http://stackoverflow.com/questions/11814059/site-matching-query-does-not-exist
-SITE_ID = 2
+SITE_ID = 4
