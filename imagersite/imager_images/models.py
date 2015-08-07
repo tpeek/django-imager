@@ -25,9 +25,9 @@ class Photo(models.Model):
     owner = models.ForeignKey(User, null=False, related_name='photos')
     title = models.CharField(max_length=128)
     description = models.TextField(blank=True)
-    date_uploaded = models.DateTimeField(default=timezone.now)
-    date_modified = models.DateTimeField(default=timezone.now)
-    date_published = models.DateTimeField(default=timezone.now)
+    date_uploaded = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
+    date_published = models.DateTimeField(auto_now_add=True)
     privacy = models.CharField(max_length=7, choices=PRIVACY, default='Public')
     geom = geomodels.PointField(null=True, blank=True)
 

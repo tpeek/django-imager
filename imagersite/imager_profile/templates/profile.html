@@ -23,8 +23,8 @@
 
 </h4>
 <h3>Looks like you need to upload more photos!</h3>
-<a href="{% url 'library' %}"><h1 class="col-md-6"><strong style="font-size:200px;">{{ user.albums.all|length }}</strong><br>Albums</h1></a>
-<a href="{% url 'library' %}"><h1 class="col-md-6"><strong style="font-size:200px;">{{ user.photos.all|length }}</strong><br>Photos</h1></a>
+<a href="{% url 'library' %}"><h1 class="col-md-6"><strong style="font-size:200px;">{{ user.albums.count }}</strong><br>Albums</h1></a>
+<a href="{% url 'library' %}"><h1 class="col-md-6"><strong style="font-size:200px;">{{ user.photos.count }}</strong><br>Photos</h1></a>
 </body>
 
 {% endblock %}
