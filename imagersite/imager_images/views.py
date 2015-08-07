@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from imager_images.models import Photo, Album
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect, HttpResponse
@@ -41,9 +41,9 @@ def set_faces(request, photo_id):
 
 @login_required
 def photo_view(request, photo_id):
-    if request.user != Photo.objects.filter(pk=photo_id).first().owner:
+    photo = get_object_or_404(Photo, pk=photo_id)
+    if request.user != photo.owner:
         raise PermissionDenied
-    photo = Photo.objects.filter(pk=photo_id).first()
     if request.method == 'POST':
         faces = get_faces(str(photo.file))
         # set_faces(request, photo_id)
@@ -54,9 +54,9 @@ def photo_view(request, photo_id):
 
 @login_required
 def album_view(request, album_id):
-    if request.user != Album.objects.filter(pk=album_id).first().owner:
+    album = get_object_or_404(Album, pk=album_id)
+    if request.user != album.owner:
         raise PermissionDenied
-    album = Album.objects.filter(id=album_id).first()
     return render(request, 'album.html', {'album': album})
 
 
@@ -77,13 +77,10 @@ def add_album_view(request):
             new_album.save()
             form.save_m2m()
             return HttpResponseRedirect('/images/library')
-        else:
-            return render(request, 'add_album.html', {'form': form.as_p})
-    else:
-        form = AlbumForm()
-        form.fields['photos'].queryset = Photo.objects.filter(owner=request.user)
-        form.fields['cover'].queryset = Photo.objects.filter(owner=request.user)
-        return render(request, 'add_album.html', {'form': form.as_p})
+    form = AlbumForm()
+    form.fields['photos'].queryset = Photo.objects.filter(owner=request.user)
+    form.fields['cover'].queryset = Photo.objects.filter(owner=request.user)
+    return render(request, 'add_album.html', {'form': form.as_p})
 
 
 @login_required
