@@ -36,12 +36,57 @@ class AlbumFactory(factory.Factory):
         model = Album
 
 
+##### Helper functions #####
+def make_one_photo():
+    """Make one photo attached to a single user with default settings"""
+    owner = UserFactory.create()
+    owner.save()
+    photo = PhotoFactory.create(owner=owner)
+    return owner, photo
+
+
+def make_one_photo_album():
+    """Make one photo attached to an album"""
+    owner = UserFactory.create()
+    owner.save()
+    cover = PhotoFactory.create(owner=owner)
+    cover.save()
+    album = AlbumFactory.create(owner=owner, cover=cover)
+    return owner, album
+
+
+def make_user_and_login(client):
+    # Fake data
+    username = fake.user_name()
+    password = fake.password()
+    email = fake.email()
+    # Create user
+    user = User.objects.create_user(username=username,
+        password=password, email=email)
+    login = client.post('/login/', {'username': username,
+        'password': password}, follow=True)
+    return user, username
+
+
+def attach_two_photos_to_user(user):
+        photo1 = PhotoFactory.create(owner=user, privacy='Public',
+            file=os.path.join(settings.MEDIA_ROOT, 'amoosing.jpg'))
+        photo2 = PhotoFactory.create(owner=user, privacy='Public',
+            file=os.path.join(settings.MEDIA_ROOT, 'googlephoto.jpg'))
+        photo1.save()
+        photo2.save()
+        album = AlbumFactory.create(owner=user)
+        album.save()
+        album.photos = [photo1, photo2]
+
+        return album, [photo1, photo2]
+
+
+##### Test Cases #####
 class PhotoModelTestCase(TestCase):
     """Create a photo owner and associate a generic photo"""
     def setUp(self):
-        self.owner = UserFactory.create()
-        self.owner.save()
-        self.photo1 = PhotoFactory.create(owner=self.owner)
+        self.owner, self.photo1 = make_one_photo()
 
     def test_photo_exists(self):
         self.assertFalse(Photo.objects.all())
@@ -56,11 +101,7 @@ class PhotoModelTestCase(TestCase):
 class AlbumModelTestCase1(TestCase):
     """Create an owner, then an empty album, then add photos to album"""
     def setUp(self):
-        owner = UserFactory.create()
-        owner.save()
-        cover = PhotoFactory.create(owner=owner)
-        cover.save()
-        self.album1 = AlbumFactory.create(owner=owner, cover=cover)
+        owner, self.album1 = make_one_photo_album()
 
     def test_album_exists(self):
         self.assertFalse(Album.objects.all())
@@ -115,28 +156,10 @@ class LibraryPageTestCase(TestCase):
     """Tests for Library view"""
     def setUp(self):
         """Make a User no photos"""
-        self.client = Client()
-        # Fake data
-        self.username = fake.user_name()
-        self.password = fake.password()
-        self.email = fake.email()
-        # Create user
-        self.user = User.objects.create_user(username=self.username,
-            password=self.password, email=self.email)
-        self.login = self.client.post('/login/', {'username': self.username,
-            'password': self.password}, follow=True)
+        self.user, self.username = make_user_and_login(self.client)
 
     def test_thumbnails_for_album_with_null_cover(self):
-        # Add photos to album
-        photo1 = PhotoFactory.create(owner=self.user, privacy='Public',
-            file=os.path.join(settings.MEDIA_ROOT, 'amoosing.jpg'))
-        photo2 = PhotoFactory.create(owner=self.user, privacy='Public',
-            file=os.path.join(settings.MEDIA_ROOT, 'googlephoto.jpg'))
-        photo1.save()
-        photo2.save()
-        album = AlbumFactory.create(owner=self.user)
-        album.save()
-        album.photos = [photo1, photo2]
+        album, photos = attach_two_photos_to_user(self.user)
         response = self.client.get('/images/library/')
         # Getting the html tag content for thumbnail
         atemp = Template('src="{{ MEDIA_URL }}seattle.jpg')
@@ -146,16 +169,8 @@ class LibraryPageTestCase(TestCase):
         self.assertIn(srclink, response.content)
 
     def test_thumbnails_for_all_albums_user_defined(self):
-        # Add photos to album
-        photo1 = PhotoFactory.create(owner=self.user, privacy='Public',
-            file=os.path.join(settings.MEDIA_ROOT, 'amoosing.jpg'))
-        photo2 = PhotoFactory.create(owner=self.user, privacy='Public',
-            file=os.path.join(settings.MEDIA_ROOT, 'googlephoto.jpg'))
-        photo1.save()
-        photo2.save()
-        album = AlbumFactory.create(owner=self.user, cover=photo1)
-        album.save()
-        album.photos = [photo1, photo2]
+        album, photos = attach_two_photos_to_user(self.user)
+        album.cover = photos[1]
         response = self.client.get('/images/library/')
         # Getting the html tag content for thumbnail
         atemp = Template('src="{{ MEDIA_URL }}{{ album.cover.file }}"')
@@ -165,16 +180,7 @@ class LibraryPageTestCase(TestCase):
         self.assertIn(srclink, response.content)
 
     def test_titles_for_all_albums_user_defined(self):
-        # Add photos to album
-        photo1 = PhotoFactory.create(owner=self.user, privacy='Public',
-            file=os.path.join(settings.MEDIA_ROOT, 'amoosing.jpg'))
-        photo2 = PhotoFactory.create(owner=self.user, privacy='Public',
-            file=os.path.join(settings.MEDIA_ROOT, 'googlephoto.jpg'))
-        photo1.save()
-        photo2.save()
-        album = AlbumFactory.create(owner=self.user, cover=photo1)
-        album.save()
-        album.photos = [photo1, photo2]
+        album, photos = attach_two_photos_to_user(self.user)
         response = self.client.get('/images/library/')
         # Getting the html tag content for thumbnail
         atemp = Template("{{ album.title }}")
@@ -197,16 +203,9 @@ class LibraryPageTestCase(TestCase):
     def test_library_links_to_add_edit_views_with_photos_albums(self):
         """Check that the library page has a link to add photo/album as
         well as edit photo/album when these exist"""
-        # Add photos to album
-        photo1 = PhotoFactory.create(owner=self.user, privacy='Public',
-            file=os.path.join(settings.MEDIA_ROOT, 'amoosing.jpg'))
-        photo2 = PhotoFactory.create(owner=self.user, privacy='Public',
-            file=os.path.join(settings.MEDIA_ROOT, 'googlephoto.jpg'))
-        photo1.save()
-        photo2.save()
-        album = AlbumFactory.create(owner=self.user, cover=photo1)
-        album.save()
-        album.photos = [photo1, photo2]
+
+        album, photos = attach_two_photos_to_user(self.user)
+        photo1 = photos[1]
         # Get response and test
         response = self.client.get('/images/library/')
         self.assertIn('/images/photos/add/', response.content)
@@ -221,22 +220,9 @@ class PhotoViewTestCase(TestCase):
     """Tests for Photo view"""
     def setUp(self):
         self.client = Client()
-        # Fake data
-        self.username = fake.user_name()
-        self.password = fake.password()
-        self.email = fake.email()
-        # Create user
-        self.user = User.objects.create_user(username=self.username,
-            password=self.password, email=self.email)
-        self.login = self.client.post('/login/', {'username': self.username,
-            'password': self.password}, follow=True)
-        # Make photos
-        self.photo1 = PhotoFactory.create(owner=self.user, privacy='Public',
-            file=os.path.join(settings.MEDIA_ROOT, 'amoosing.jpg'))
-        self.photo2 = PhotoFactory.create(owner=self.user, privacy='Public',
-            file=os.path.join(settings.MEDIA_ROOT, 'googlephoto.jpg'))
-        self.photo1.save()
-        self.photo2.save()
+        self.user, username = make_user_and_login(self.client)
+        album, photos = attach_two_photos_to_user(self.user)
+        self.photo1, self.photo2 = photos[0], photos[1]
         self.response1 = self.client.get('/images/photos/' +
                                     str(self.photo1.id) +'/')
         self.response2 = self.client.get('/images/photos/' +
@@ -261,25 +247,9 @@ class AlbumViewTestCase(TestCase):
     """Tests for Album view"""
     def setUp(self):
         self.client = Client()
-        # Fake data
-        self.username = fake.user_name()
-        self.password = fake.password()
-        self.email = fake.email()
-        # Create user
-        self.user = User.objects.create_user(username=self.username,
-            password=self.password, email=self.email)
-        self.login = self.client.post('/login/', {'username': self.username,
-            'password': self.password}, follow=True)
-        # Make photos
-        self.photo1 = PhotoFactory.create(owner=self.user, privacy='Public',
-            file=os.path.join(settings.MEDIA_ROOT, 'amoosing.jpg'))
-        self.photo2 = PhotoFactory.create(owner=self.user, privacy='Public',
-            file=os.path.join(settings.MEDIA_ROOT, 'googlephoto.jpg'))
-        self.photo1.save()
-        self.photo2.save()
-        self.album = AlbumFactory.create(owner=self.user, cover=self.photo1)
-        self.album.save()
-        self.album.photos = [self.photo1, self.photo2]
+        self.user, username = make_user_and_login(self.client)
+        self.album, photos = attach_two_photos_to_user(self.user)
+        self.photo1, self.photo2 = photos[0], photos[1]
         self.response = self.client.get('/images/albums/' +
                                         str(self.album.id) + '/')
 
@@ -300,15 +270,7 @@ class AlbumViewTestCase(TestCase):
 class PhotoAddTestCase(TestCase):
     def setUp(self):
         self.client = Client()
-        # Fake data
-        self.username = fake.user_name()
-        self.password = fake.password()
-        self.email = fake.email()
-        # Create user
-        self.user = User.objects.create_user(username=self.username,
-            password=self.password, email=self.email)
-        self.login = self.client.post('/login/', {'username': self.username,
-            'password': self.password}, follow=True)
+        self.user, username = make_user_and_login(self.client)
 
     def test_photo_has_form(self):
         response = self.client.get('/images/photos/add/')
@@ -325,22 +287,9 @@ class PhotoAddTestCase(TestCase):
 class PhotoEditTestCase(TestCase):
     def setUp(self):
         self.client = Client()
-        # Fake data
-        self.username = fake.user_name()
-        self.password = fake.password()
-        self.email = fake.email()
-        # Create user
-        self.user = User.objects.create_user(username=self.username,
-            password=self.password, email=self.email)
-        self.login = self.client.post('/login/', {'username': self.username,
-            'password': self.password}, follow=True)
-        # Make photos
-        self.photo1 = PhotoFactory.create(owner=self.user, privacy='Public',
-            file=os.path.join(settings.MEDIA_ROOT, 'amoosing.jpg'))
-        self.photo2 = PhotoFactory.create(owner=self.user, privacy='Public',
-            file=os.path.join(settings.MEDIA_ROOT, 'googlephoto.jpg'))
-        self.photo1.save()
-        self.photo2.save()
+        self.user, username = make_user_and_login(self.client)
+        self.album, photos = attach_two_photos_to_user(self.user)
+        self.photo1, self.photo2 = photos[0], photos[1]
 
     def test_photo_edit_has_form(self):
         response = self.client.get(
@@ -370,15 +319,7 @@ class PhotoEditTestCase(TestCase):
 class AlbumAddTestCase(TestCase):
     def setUp(self):
         self.client = Client()
-        # Fake data
-        self.username = fake.user_name()
-        self.password = fake.password()
-        self.email = fake.email()
-        # Create user
-        self.user = User.objects.create_user(username=self.username,
-            password=self.password, email=self.email)
-        self.login = self.client.post('/login/', {'username': self.username,
-            'password': self.password}, follow=True)
+        self.user, username = make_user_and_login(self.client)
 
     def test_album_has_form(self):
         response = self.client.get('/images/albums/add/')
@@ -403,25 +344,9 @@ class AlbumAddTestCase(TestCase):
 class AlbumEditTestCase(TestCase):
     def setUp(self):
         self.client = Client()
-        # Fake data
-        self.username = fake.user_name()
-        self.password = fake.password()
-        self.email = fake.email()
-        # Create user
-        self.user = User.objects.create_user(username=self.username,
-            password=self.password, email=self.email)
-        self.login = self.client.post('/login/', {'username': self.username,
-            'password': self.password}, follow=True)
-        # Make photos
-        self.photo1 = PhotoFactory.create(owner=self.user, privacy='Public',
-            file=os.path.join(settings.MEDIA_ROOT, 'amoosing.jpg'))
-        self.photo2 = PhotoFactory.create(owner=self.user, privacy='Public',
-            file=os.path.join(settings.MEDIA_ROOT, 'googlephoto.jpg'))
-        self.photo1.save()
-        self.photo2.save()
-        self.album = AlbumFactory.create(owner=self.user, cover=self.photo1)
-        self.album.save()
-        self.album.photos = [self.photo1, self.photo2]
+        self.user, username = make_user_and_login(self.client)
+        self.album, photos = attach_two_photos_to_user(self.user)
+        self.photo1, self.photo2 = photos[0], photos[1]
 
     def test_album_edit_has_form(self):
         response = self.client.get(
