@@ -149,7 +149,7 @@ def edit_photo_view(request, photo_id):
             return render(request, 'edit_photo.html',
                           {'form1': picform1.as_p,
                            'form2': picform2,
-                           'album_id': photo_id})
+                           'photo_id': photo_id})
     else:
         picform1 = PhotoForm(instance=photo)
         picform2 = LocationForm()
