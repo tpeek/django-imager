@@ -111,7 +111,7 @@ class AlbumModelTestCase2(TestCase):
             self.assertEqual(p1, p2)
 
 
-class LibraryPage(TestCase):
+class LibraryPageTestCase(TestCase):
     """Tests for Library view"""
     def setUp(self):
         """Make a User no photos"""
@@ -217,7 +217,7 @@ class LibraryPage(TestCase):
                       response.content)
 
 
-class PhotoView(TestCase):
+class PhotoViewTestCase(TestCase):
     """Tests for Photo view"""
     def setUp(self):
         self.client = Client()
@@ -257,7 +257,7 @@ class PhotoView(TestCase):
         self.assertIn(srclink2, self.response2.content)
 
 
-class AlbumView(TestCase):
+class AlbumViewTestCase(TestCase):
     """Tests for Album view"""
     def setUp(self):
         self.client = Client()
@@ -297,7 +297,7 @@ class AlbumView(TestCase):
         self.assertIn(srclink2, self.response.content)
 
 
-class PhotoAdd(TestCase):
+class PhotoAddTestCase(TestCase):
     def setUp(self):
         self.client = Client()
         # Fake data
@@ -322,7 +322,7 @@ class PhotoAdd(TestCase):
         self.assertEqual(response.status_code, 200)
 
 
-class PhotoEdit(TestCase):
+class PhotoEditTestCase(TestCase):
     def setUp(self):
         self.client = Client()
         # Fake data
@@ -367,7 +367,7 @@ class PhotoEdit(TestCase):
         self.assertEqual(response.status_code, 200)
 
 
-class AlbumAdd(TestCase):
+class AlbumAddTestCase(TestCase):
     def setUp(self):
         self.client = Client()
         # Fake data
@@ -400,7 +400,7 @@ class AlbumAdd(TestCase):
         self.assertEqual(response.status_code, 200)
 
 
-class AlbumEdit(TestCase):
+class AlbumEditTestCase(TestCase):
     def setUp(self):
         self.client = Client()
         # Fake data
