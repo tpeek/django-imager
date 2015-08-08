@@ -162,8 +162,8 @@ class LibraryPageTestCase(TestCase):
         album, photos = attach_two_photos_to_user(self.user)
         response = self.client.get('/images/library/')
         # Getting the html tag content for thumbnail
-        atemp = Template('src="{{ MEDIA_URL }}seattle.jpg')
-        srclink = atemp.render(Context({'MEDIA_URL': settings.MEDIA_URL,
+        atemp = Template('src="/static/imager_images/seattle.jpg')
+        srclink = atemp.render(Context({'STATIC_URL': settings.STATIC_URL,
             'album': album}))
         # Assert that thumbnail exists as src attribute
         self.assertIn(srclink, response.content)

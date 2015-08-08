@@ -12,20 +12,15 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+import dj_database_url
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+SECRET_KEY = os.environ['SECRET_KEY']
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
+DEBUG = os.environ.get('DEBUG', False)
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'n-c0k2=d(e20ev6+0nj#q(ri$1e7=4&clrfz7$)9$*x(-^p(+x'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS')
 
 # Application definition
 
@@ -145,14 +140,9 @@ BOOTSTRAP3 = {
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'django-imager',
-        'USER': 'jason',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
-    }
+    'default': dj_database_url.config()
 }
 
 CACHES = {
@@ -183,7 +173,6 @@ USE_TZ = False
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
-
 # Media file handling
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
@@ -191,12 +180,11 @@ MEDIA_URL = '/media/'
 # Email
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'pythonpics@gmail.com'
-EMAIL_HOST_PASSWORD = 'pythonpicspass'
+EMAIL_HOST_USER = os.environ['EMAIL_HOST_USER']
+EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
 EMAIL_PORT = 587
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-EMAIL_FILE_PATH = 'emails'
-
+if os.environ.get('EMAIL_BACKEND', None):
+    EMAIL_BACKEND = os.environ['EMAIL_BACKEND']
 
 # For django-registration-redux
 ACCOUNT_ACTIVATION_DAYS = 3
@@ -205,4 +193,4 @@ LOGIN_URL = '/login/'
 
 # Added per
 # http://stackoverflow.com/questions/11814059/site-matching-query-does-not-exist
-SITE_ID = 2
+SITE_ID = 4

@@ -1,5 +1,7 @@
 {% extends "base.html" %}
+
 {% block content %}
+{% load staticfiles %}
 
 <h1>{{ user.username }}'s Albums</h1>
 <div class="container">
@@ -11,14 +13,14 @@
         {% if album.cover.file %}
           <img style='box-shadow: 10px 15px 15px; width: auto; height: 160px;' class="thumbnail" src="{{ MEDIA_URL }}{{ album.cover.file }}">
         {% else %}
-          <img style='box-shadow: 10px 15px 15px; width: auto; height: 160px;' class="thumbnail" src="{{ MEDIA_URL }}seattle.jpg">
+          <img style='box-shadow: 10px 15px 15px; width: auto; height: 160px;' class="thumbnail" src="{% static 'imager_images/seattle.jpg' %}">
         {% endif %}
         </a>
         </div>
      {% endfor %}
       <div class="col-lg-3 col-md-4 col-sm-5 col-xs-6">
-        <h4 class='text-center'>Add New</h4>
-        <a href="{% url 'add_album' %}"><img style='box-shadow: 10px 15px 15px; width: auto; height: 160px;' class="thumbnail" src="{{ MEDIA_URL }}add_album.png"></a>
+        <h4 class='text-center'>Add New</h4><a href="{% url 'add_album' %}">Add</a>
+        <a href="{% url 'add_album' %}"><img style='box-shadow: 10px 15px 15px; width: auto; height: 160px;' class="thumbnail" src="{% static 'imager_images/add_album.png' %}"></a>
         </div>
 </div>
 <h1 class="divider">{{ user.username }}'s Photos</h1>
@@ -30,8 +32,8 @@
     </div>
     {% endfor %}
     <div class="col-lg-3 col-md-4 col-sm-5 col-xs-6"><br><br>
-        <h4 class='text-center'>Add New</h4>
-        <a href="{% url 'add_photo' %}"><img style='box-shadow: 10px 15px 15px; width: auto; height: 160px;' class="thumbnail" src="{{ MEDIA_URL }}add_photo.png"></a>
+        <h4 class='text-center'>Add New</h4><a href="{% url 'add_photo' %}">Add</a>
+        <a href="{% url 'add_photo' %}"><img style='box-shadow: 10px 15px 15px; width: auto; height: 160px;' class="thumbnail" src="{% static 'imager_images/add_photo.png' %}"></a>
     </div>
 </div>
 
