@@ -10,6 +10,7 @@ urlpatterns = [
     url(r'^$', home_view, name='homepage'),
     url(r'^profile/', include('imager_profile.urls')),
     url(r'^images/', include('imager_images.urls')),
+    url(r'^', include('imager_api.urls')),
     url(r'^', include('registration.backends.default.urls')),
 ] + (static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) +
      static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT))
