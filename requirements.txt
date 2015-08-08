@@ -6,6 +6,7 @@ django-floppyforms==1.5.2
 django-geojson==2.8.1
 django-leaflet==0.16.0
 django-registration-redux==1.2
+djangorestframework==3.2.0
 factory-boy==2.5.2
 fake-factory==0.5.2
 Faker==0.0.4
