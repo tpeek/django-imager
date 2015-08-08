@@ -41,6 +41,7 @@ INSTALLED_APPS = (
     'floppyforms',
     'leaflet',
     'djgeojson',
+    'rest_framework',
 )
 
 MIDDLEWARE_CLASSES = (
