@@ -1,19 +1,44 @@
 {% extends "base.html" %}
+{% load leaflet_tags %}
+{% load staticfiles %}
+
+{% block head %}
+    {% leaflet_js %}
+    {% leaflet_css %}
+{% endblock %}
+
 {% block content %}
 
 <body>
-<h1>{{ album.title }}</h1>
-    <div class="img-responsive"><br><br>
-    <h6 class='text-center'>Uploaded on {{ album.date_uploaded }} -- {{album.privacy }}</h6>
-    <pre class='text-center'>{{ album.description }}</pre>
-    </div>
 
+<h1>{{ album.title }}</h1>
+<a href="{% url 'edit_album' album.id %}">Edit</a>
+    <div class="img-responsive"><br><br>
+    <h6 class='text-center'>Uploaded on {{ album.date_uploaded }} -- {{ album.privacy }}</h6>
+    <pre class='text-center'>{{ album.description }}</pre>
+
+
+    {% leaflet_map "main" callback="main_map_init" %}
+    <script type="text/javascript">
+        function main_map_init (map, options) {
+
+            var dataurl = '{% url "a_geodata" album.id %}';
+            // Download GeoJSON via Ajax
+            $.getJSON(dataurl, function (data) {
+            // Add GeoJSON layer
+            L.geoJson(data).addTo(map);
+            });
+        }
+    </script>
+
+
+    </div>
     {% for photo in album.photos.all %}
     <div class="col-lg-3 col-md-4 col-sm-5 col-xs-6"><br><br>
         <h4 class='text-center'>{{ photo.title }}</h4>
-        <a href='/images/photos/{{ photo.id }}'><img style='box-shadow: 10px 15px 15px; width: auto; height: 160px;' class="thumbnail" src="{{ MEDIA_URL }}{{ photo.file }}"></a>
+        <a href='{% url 'photo' photo.id %}'><img style='box-shadow: 10px 15px 15px; width: auto; height: 160px;' class="thumbnail" src="{{ MEDIA_URL }}{{ photo.file }}"></a>
     </div>
     {% endfor %}
-</body>
 
+</body>
 {% endblock %}

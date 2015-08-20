@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block head %}
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/openlayers/2.13.1/OpenLayers.js"></script>
+    {{ form2.media }}
+{% endblock %}
+{% block content %}
+
+    {% load staticfiles %}
+
+<form action="{% url 'edit_photo' photo_id %}" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form1 }}
+    {{ form2 }}
+    <input type="submit" value="Save"/>
+</form>
+
+{% endblock %}
